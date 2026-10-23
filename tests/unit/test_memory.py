@@ -47,3 +47,26 @@ def test_governed_memory_excludes_expired_and_superseded(session: Session) -> No
     raw = store.search("M001", tenant_id="tenant-1", user_id="user-1", governed=False)
     assert [item.fact for item in governed] == ["当前偏好-M001"]
     assert {item.fact for item in raw} == {"当前偏好-M001", "过期偏好-M001"}
+
+
+def test_explicit_identifier_outranks_semantic_distractors(session: Session) -> None:
+    for marker in ("M004", "M007", "M010"):
+        session.add(
+            Memory(
+                tenant_id="tenant-1",
+                user_id="user-1",
+                kind="preference",
+                fact=f"当前偏好-{marker}",
+                consent=True,
+            )
+        )
+    session.commit()
+
+    result = GovernedMemoryStore(session).search(
+        "请回忆我确认过的售后说明偏好，记忆编号 M010",
+        tenant_id="tenant-1",
+        user_id="user-1",
+        limit=1,
+    )
+
+    assert [item.fact for item in result] == ["当前偏好-M010"]

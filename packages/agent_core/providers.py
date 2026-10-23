@@ -61,7 +61,7 @@ class OllamaProvider:
                         "model": settings.ollama_model,
                         "prompt": self._prompt(question, evidence, memories),
                         "stream": False,
-                        "options": {"temperature": 0},
+                        "options": {"temperature": 0, "num_predict": 256},
                     },
                     timeout=90,
                 )
@@ -83,7 +83,7 @@ class OllamaProvider:
                     "model": settings.ollama_model,
                     "prompt": self._prompt(question, evidence, memories),
                     "stream": True,
-                    "options": {"temperature": 0},
+                    "options": {"temperature": 0, "num_predict": 256},
                 },
                 timeout=90,
             ) as response:

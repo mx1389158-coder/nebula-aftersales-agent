@@ -134,12 +134,25 @@ class GovernedMemoryStore:
 
             active = [item for item in rows if still_valid(item) and item.id not in superseded]
         query_vector = self.embedder.embed(query)
-        active.sort(
-            key=lambda item: (
+        query_identifiers = {
+            token.lower() for token in re.findall(r"\b[A-Za-z]+[-_]?\d+\b", query)
+        }
+
+        def rank(item: Memory) -> tuple[bool, float]:
+            item_identifiers = {
+                token.lower() for token in re.findall(r"\b[A-Za-z]+[-_]?\d+\b", item.fact)
+            }
+            semantic_score = (
                 cosine_similarity(query_vector, self.embedder.embed(item.fact)) * 0.7
                 + item.confidence * 0.2
                 + item.updated_at.timestamp() / 1e11
-            ),
+            )
+            # Explicit device, firmware, ticket and memory identifiers are stronger
+            # evidence than a merely similar preference sentence.
+            return (bool(query_identifiers & item_identifiers), semantic_score)
+
+        active.sort(
+            key=rank,
             reverse=True,
         )
         return active[:limit]
