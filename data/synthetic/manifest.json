@@ -12,6 +12,7 @@
   "evaluation_unique_questions": 400,
   "blind_evaluation_cases": 400,
   "second_blind_evaluation_cases": 400,
+  "final_blind_evaluation_cases": 400,
   "skill_evaluation_tasks": 100,
   "synthetic_and_deidentified": true
 }

@@ -20,6 +20,8 @@ from packages.tools.tickets import TicketTools
 
 HIGH_RISK_TERMS = ("冒烟", "起火", "漏电", "触电", "爆炸", "高压", "烧焦", "拆机")
 TICKET_TERMS = ("创建工单", "提交工单", "售后工单", "报修", "联系售后", "转人工")
+TICKET_OBJECT_TERMS = ("工单", "报修", "服务请求", "售后请求")
+TICKET_ACTION_TERMS = ("创建", "提交", "登记", "新增", "发起", "需要", "帮我", "联系", "转")
 STATUS_TERMS = ("工单状态", "查询工单", "工单进度")
 MEMORY_TERMS = ("请记住", "帮我记住", "以后记得", "我的偏好")
 MEMORY_QUERY_TERMS = (
@@ -28,6 +30,7 @@ MEMORY_QUERY_TERMS = (
     "回忆我确认",
     "我的偏好是什么",
     "我常用的设备",
+    "记忆编号",
 )
 PROMPT_INJECTION_TERMS = (
     "忽略之前",
@@ -37,7 +40,15 @@ PROMPT_INJECTION_TERMS = (
     "读取其他用户",
     "跨用户",
     "管理员密钥",
+    "绕过现有约束",
 )
+
+
+def _is_ticket_request(message: str) -> bool:
+    return any(term in message for term in TICKET_TERMS) or (
+        any(term in message for term in TICKET_OBJECT_TERMS)
+        and any(term in message for term in TICKET_ACTION_TERMS)
+    )
 
 
 class AgentState(TypedDict, total=False):
@@ -181,7 +192,7 @@ class AgentRuntime:
             intent = "handoff"
         elif any(term in lowered for term in STATUS_TERMS):
             intent = "ticket_status"
-        elif any(term in lowered for term in TICKET_TERMS):
+        elif _is_ticket_request(lowered):
             intent = "create_ticket"
         elif any(term in lowered for term in MEMORY_QUERY_TERMS):
             intent = "memory_answer"

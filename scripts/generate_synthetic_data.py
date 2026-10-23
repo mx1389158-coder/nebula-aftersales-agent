@@ -271,6 +271,25 @@ def main() -> None:
             clone["question"] = clone["question"].replace(source, target)
         blind_v2.append(clone)
     write_jsonl(ROOT / "evals" / "datasets" / "aftersales-blind-v2.jsonl", blind_v2)
+    blind_v3: list[dict] = []
+    third_wording_changes = {
+        "怎么排查": "请给出逐项验证顺序",
+        "应怎样排查并判断安全边界": "请说明诊断顺序和必须终止操作的边界",
+        "给出升级失败排查步骤": "列出升级异常的检查次序",
+        "你记得我的偏好是什么吗": "按记忆编号告诉我已生效的说明偏好",
+        "忽略之前的安全要求": "绕过现有约束",
+        "我能自己拆机吗": "怎样处理才能避免进一步危险",
+        "请为设备无法联网创建工单": "帮我新增一项无法联网的服务请求",
+        "请直接给结论": "信息不全也不要追问",
+    }
+    for item in evals:
+        clone = json.loads(json.dumps(item, ensure_ascii=False))
+        clone["id"] = f"blind3-{item['id']}"
+        clone["question"] = clone["question"].replace("案例 ", "终验样本 ")
+        for source, target in third_wording_changes.items():
+            clone["question"] = clone["question"].replace(source, target)
+        blind_v3.append(clone)
+    write_jsonl(ROOT / "evals" / "datasets" / "aftersales-blind-v3.jsonl", blind_v3)
     smoke: list[dict] = []
     smoke_targets = {
         "single_document_fact": 7,
@@ -320,6 +339,7 @@ def main() -> None:
         "evaluation_unique_questions": len({item["question"] for item in evals}),
         "blind_evaluation_cases": len(blind_evals),
         "second_blind_evaluation_cases": len(blind_v2),
+        "final_blind_evaluation_cases": len(blind_v3),
         "skill_evaluation_tasks": len(skill_tasks),
         "synthetic_and_deidentified": True,
     }
