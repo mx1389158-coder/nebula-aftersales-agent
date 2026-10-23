@@ -1,0 +1,16 @@
+{
+  "product_families": 4,
+  "models": 8,
+  "firmware_versions": 24,
+  "documents": 72,
+  "faq": 400,
+  "tickets": 1000,
+  "users": 20,
+  "memories": 200,
+  "evaluation_qa": 300,
+  "evaluation_tasks": 100,
+  "evaluation_unique_questions": 400,
+  "blind_evaluation_cases": 400,
+  "skill_evaluation_tasks": 100,
+  "synthetic_and_deidentified": true
+}

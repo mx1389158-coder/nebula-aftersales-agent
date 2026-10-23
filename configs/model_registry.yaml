@@ -1,0 +1,25 @@
+models:
+  - id: qwen2.5:1.5b
+    role: generation
+    provider: ollama
+    quantization: 4bit
+    license: Apache-2.0
+    license_review_required: false
+  - id: BAAI/bge-small-zh-v1.5
+    role: embedding
+    provider: huggingface
+    device: cpu
+    license: MIT
+    license_review_required: false
+  - id: BAAI/bge-reranker-base
+    role: reranker
+    provider: huggingface
+    device: cpu
+    license: MIT
+    license_review_required: false
+  - id: hash-embedding-v1
+    role: deterministic-test-baseline
+    provider: builtin
+    dimensions: 256
+    license: project
+

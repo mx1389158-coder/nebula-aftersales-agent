@@ -1,0 +1,650 @@
+[
+  {
+    "title": "星云智家 X2 固件 1.9.0 manual",
+    "source": "router-x2-1.9.0-manual.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# X2 manual 知识\nX2 固件 1.9.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 1.9.0 faq",
+    "source": "router-x2-1.9.0-faq.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# X2 faq 知识\nX2 固件 1.9.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X2-1.9.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 1.9.0 policy",
+    "source": "router-x2-1.9.0-policy.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# X2 policy 知识\nX2 固件 1.9.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.0.0 manual",
+    "source": "router-x2-2.0.0-manual.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# X2 manual 知识\nX2 固件 2.0.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.0.0 faq",
+    "source": "router-x2-2.0.0-faq.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# X2 faq 知识\nX2 固件 2.0.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X2-2.0.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.0.0 policy",
+    "source": "router-x2-2.0.0-policy.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# X2 policy 知识\nX2 固件 2.0.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.1.0 manual",
+    "source": "router-x2-2.1.0-manual.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# X2 manual 知识\nX2 固件 2.1.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.1.0 faq",
+    "source": "router-x2-2.1.0-faq.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# X2 faq 知识\nX2 固件 2.1.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X2-2.1.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X2 固件 2.1.0 policy",
+    "source": "router-x2-2.1.0-policy.md",
+    "product_id": "router",
+    "model": "X2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# X2 policy 知识\nX2 固件 2.1.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.8.0 manual",
+    "source": "router-x3-2.8.0-manual.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.8.0",
+    "doc_version": "2026.10",
+    "content": "# X3 manual 知识\nX3 固件 2.8.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.8.0 faq",
+    "source": "router-x3-2.8.0-faq.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.8.0",
+    "doc_version": "2026.10",
+    "content": "# X3 faq 知识\nX3 固件 2.8.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X3-2.8.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.8.0 policy",
+    "source": "router-x3-2.8.0-policy.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.8.0",
+    "doc_version": "2026.10",
+    "content": "# X3 policy 知识\nX3 固件 2.8.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.9.0 manual",
+    "source": "router-x3-2.9.0-manual.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.9.0",
+    "doc_version": "2026.10",
+    "content": "# X3 manual 知识\nX3 固件 2.9.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.9.0 faq",
+    "source": "router-x3-2.9.0-faq.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.9.0",
+    "doc_version": "2026.10",
+    "content": "# X3 faq 知识\nX3 固件 2.9.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X3-2.9.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 2.9.0 policy",
+    "source": "router-x3-2.9.0-policy.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "2.9.0",
+    "doc_version": "2026.10",
+    "content": "# X3 policy 知识\nX3 固件 2.9.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 3.0.0 manual",
+    "source": "router-x3-3.0.0-manual.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# X3 manual 知识\nX3 固件 3.0.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 3.0.0 faq",
+    "source": "router-x3-3.0.0-faq.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# X3 faq 知识\nX3 固件 3.0.0 的正式售后资料。\n\n# 常见问题\n诊断标识 X3-3.0.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 X3 固件 3.0.0 policy",
+    "source": "router-x3-3.0.0-policy.md",
+    "product_id": "router",
+    "model": "X3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# X3 policy 知识\nX3 固件 3.0.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.0.0 manual",
+    "source": "air-purifier-a3-3.0.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# A3 manual 知识\nA3 固件 3.0.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.0.0 faq",
+    "source": "air-purifier-a3-3.0.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# A3 faq 知识\nA3 固件 3.0.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A3-3.0.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.0.0 policy",
+    "source": "air-purifier-a3-3.0.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.0.0",
+    "doc_version": "2026.10",
+    "content": "# A3 policy 知识\nA3 固件 3.0.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.1.0 manual",
+    "source": "air-purifier-a3-3.1.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.1.0",
+    "doc_version": "2026.10",
+    "content": "# A3 manual 知识\nA3 固件 3.1.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.1.0 faq",
+    "source": "air-purifier-a3-3.1.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.1.0",
+    "doc_version": "2026.10",
+    "content": "# A3 faq 知识\nA3 固件 3.1.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A3-3.1.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.1.0 policy",
+    "source": "air-purifier-a3-3.1.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.1.0",
+    "doc_version": "2026.10",
+    "content": "# A3 policy 知识\nA3 固件 3.1.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.2.0 manual",
+    "source": "air-purifier-a3-3.2.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.2.0",
+    "doc_version": "2026.10",
+    "content": "# A3 manual 知识\nA3 固件 3.2.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.2.0 faq",
+    "source": "air-purifier-a3-3.2.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.2.0",
+    "doc_version": "2026.10",
+    "content": "# A3 faq 知识\nA3 固件 3.2.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A3-3.2.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A3 固件 3.2.0 policy",
+    "source": "air-purifier-a3-3.2.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A3",
+    "firmware_version": "3.2.0",
+    "doc_version": "2026.10",
+    "content": "# A3 policy 知识\nA3 固件 3.2.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.8.0 manual",
+    "source": "air-purifier-a5-3.8.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.8.0",
+    "doc_version": "2026.10",
+    "content": "# A5 manual 知识\nA5 固件 3.8.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.8.0 faq",
+    "source": "air-purifier-a5-3.8.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.8.0",
+    "doc_version": "2026.10",
+    "content": "# A5 faq 知识\nA5 固件 3.8.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A5-3.8.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.8.0 policy",
+    "source": "air-purifier-a5-3.8.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.8.0",
+    "doc_version": "2026.10",
+    "content": "# A5 policy 知识\nA5 固件 3.8.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.9.0 manual",
+    "source": "air-purifier-a5-3.9.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.9.0",
+    "doc_version": "2026.10",
+    "content": "# A5 manual 知识\nA5 固件 3.9.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.9.0 faq",
+    "source": "air-purifier-a5-3.9.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.9.0",
+    "doc_version": "2026.10",
+    "content": "# A5 faq 知识\nA5 固件 3.9.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A5-3.9.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 3.9.0 policy",
+    "source": "air-purifier-a5-3.9.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "3.9.0",
+    "doc_version": "2026.10",
+    "content": "# A5 policy 知识\nA5 固件 3.9.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 4.0.0 manual",
+    "source": "air-purifier-a5-4.0.0-manual.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "4.0.0",
+    "doc_version": "2026.10",
+    "content": "# A5 manual 知识\nA5 固件 4.0.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 4.0.0 faq",
+    "source": "air-purifier-a5-4.0.0-faq.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "4.0.0",
+    "doc_version": "2026.10",
+    "content": "# A5 faq 知识\nA5 固件 4.0.0 的正式售后资料。\n\n# 常见问题\n诊断标识 A5-4.0.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 A5 固件 4.0.0 policy",
+    "source": "air-purifier-a5-4.0.0-policy.md",
+    "product_id": "air-purifier",
+    "model": "A5",
+    "firmware_version": "4.0.0",
+    "doc_version": "2026.10",
+    "content": "# A5 policy 知识\nA5 固件 4.0.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.3.0 manual",
+    "source": "camera-c1-1.3.0-manual.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.3.0",
+    "doc_version": "2026.10",
+    "content": "# C1 manual 知识\nC1 固件 1.3.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.3.0 faq",
+    "source": "camera-c1-1.3.0-faq.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.3.0",
+    "doc_version": "2026.10",
+    "content": "# C1 faq 知识\nC1 固件 1.3.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C1-1.3.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.3.0 policy",
+    "source": "camera-c1-1.3.0-policy.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.3.0",
+    "doc_version": "2026.10",
+    "content": "# C1 policy 知识\nC1 固件 1.3.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.4.0 manual",
+    "source": "camera-c1-1.4.0-manual.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.4.0",
+    "doc_version": "2026.10",
+    "content": "# C1 manual 知识\nC1 固件 1.4.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.4.0 faq",
+    "source": "camera-c1-1.4.0-faq.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.4.0",
+    "doc_version": "2026.10",
+    "content": "# C1 faq 知识\nC1 固件 1.4.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C1-1.4.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.4.0 policy",
+    "source": "camera-c1-1.4.0-policy.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.4.0",
+    "doc_version": "2026.10",
+    "content": "# C1 policy 知识\nC1 固件 1.4.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.5.0 manual",
+    "source": "camera-c1-1.5.0-manual.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.5.0",
+    "doc_version": "2026.10",
+    "content": "# C1 manual 知识\nC1 固件 1.5.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.5.0 faq",
+    "source": "camera-c1-1.5.0-faq.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.5.0",
+    "doc_version": "2026.10",
+    "content": "# C1 faq 知识\nC1 固件 1.5.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C1-1.5.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C1 固件 1.5.0 policy",
+    "source": "camera-c1-1.5.0-policy.md",
+    "product_id": "camera",
+    "model": "C1",
+    "firmware_version": "1.5.0",
+    "doc_version": "2026.10",
+    "content": "# C1 policy 知识\nC1 固件 1.5.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.8.0 manual",
+    "source": "camera-c2-1.8.0-manual.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# C2 manual 知识\nC2 固件 1.8.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.8.0 faq",
+    "source": "camera-c2-1.8.0-faq.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# C2 faq 知识\nC2 固件 1.8.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C2-1.8.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.8.0 policy",
+    "source": "camera-c2-1.8.0-policy.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# C2 policy 知识\nC2 固件 1.8.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.9.0 manual",
+    "source": "camera-c2-1.9.0-manual.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# C2 manual 知识\nC2 固件 1.9.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.9.0 faq",
+    "source": "camera-c2-1.9.0-faq.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# C2 faq 知识\nC2 固件 1.9.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C2-1.9.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 1.9.0 policy",
+    "source": "camera-c2-1.9.0-policy.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# C2 policy 知识\nC2 固件 1.9.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 2.0.0 manual",
+    "source": "camera-c2-2.0.0-manual.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# C2 manual 知识\nC2 固件 2.0.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 2.0.0 faq",
+    "source": "camera-c2-2.0.0-faq.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# C2 faq 知识\nC2 固件 2.0.0 的正式售后资料。\n\n# 常见问题\n诊断标识 C2-2.0.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 C2 固件 2.0.0 policy",
+    "source": "camera-c2-2.0.0-policy.md",
+    "product_id": "camera",
+    "model": "C2",
+    "firmware_version": "2.0.0",
+    "doc_version": "2026.10",
+    "content": "# C2 policy 知识\nC2 固件 2.0.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.7.0 manual",
+    "source": "speaker-s1-1.7.0-manual.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.7.0",
+    "doc_version": "2026.10",
+    "content": "# S1 manual 知识\nS1 固件 1.7.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.7.0 faq",
+    "source": "speaker-s1-1.7.0-faq.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.7.0",
+    "doc_version": "2026.10",
+    "content": "# S1 faq 知识\nS1 固件 1.7.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S1-1.7.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.7.0 policy",
+    "source": "speaker-s1-1.7.0-policy.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.7.0",
+    "doc_version": "2026.10",
+    "content": "# S1 policy 知识\nS1 固件 1.7.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.8.0 manual",
+    "source": "speaker-s1-1.8.0-manual.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# S1 manual 知识\nS1 固件 1.8.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.8.0 faq",
+    "source": "speaker-s1-1.8.0-faq.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# S1 faq 知识\nS1 固件 1.8.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S1-1.8.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.8.0 policy",
+    "source": "speaker-s1-1.8.0-policy.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.8.0",
+    "doc_version": "2026.10",
+    "content": "# S1 policy 知识\nS1 固件 1.8.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.9.0 manual",
+    "source": "speaker-s1-1.9.0-manual.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# S1 manual 知识\nS1 固件 1.9.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.9.0 faq",
+    "source": "speaker-s1-1.9.0-faq.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# S1 faq 知识\nS1 固件 1.9.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S1-1.9.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S1 固件 1.9.0 policy",
+    "source": "speaker-s1-1.9.0-policy.md",
+    "product_id": "speaker",
+    "model": "S1",
+    "firmware_version": "1.9.0",
+    "doc_version": "2026.10",
+    "content": "# S1 policy 知识\nS1 固件 1.9.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.1.0 manual",
+    "source": "speaker-s2-2.1.0-manual.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# S2 manual 知识\nS2 固件 2.1.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.1.0 faq",
+    "source": "speaker-s2-2.1.0-faq.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# S2 faq 知识\nS2 固件 2.1.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S2-2.1.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.1.0 policy",
+    "source": "speaker-s2-2.1.0-policy.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.1.0",
+    "doc_version": "2026.10",
+    "content": "# S2 policy 知识\nS2 固件 2.1.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.2.0 manual",
+    "source": "speaker-s2-2.2.0-manual.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.2.0",
+    "doc_version": "2026.10",
+    "content": "# S2 manual 知识\nS2 固件 2.2.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.2.0 faq",
+    "source": "speaker-s2-2.2.0-faq.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.2.0",
+    "doc_version": "2026.10",
+    "content": "# S2 faq 知识\nS2 固件 2.2.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S2-2.2.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.2.0 policy",
+    "source": "speaker-s2-2.2.0-policy.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.2.0",
+    "doc_version": "2026.10",
+    "content": "# S2 policy 知识\nS2 固件 2.2.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.3.0 manual",
+    "source": "speaker-s2-2.3.0-manual.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.3.0",
+    "doc_version": "2026.10",
+    "content": "# S2 manual 知识\nS2 固件 2.3.0 的正式售后资料。\n\n# 联网排查\n1. 检查电源与线缆。\n2. 在状态页读取错误码。\n3. 断电三十秒后重启。\n4. 仍未恢复时导出诊断日志并创建工单。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.3.0 faq",
+    "source": "speaker-s2-2.3.0-faq.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.3.0",
+    "doc_version": "2026.10",
+    "content": "# S2 faq 知识\nS2 固件 2.3.0 的正式售后资料。\n\n# 常见问题\n诊断标识 S2-2.3.0-FAQ。指示灯异常时先记录颜色和闪烁频率，频繁离线时检查路由信道与错误码。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  },
+  {
+    "title": "星云智家 S2 固件 2.3.0 policy",
+    "source": "speaker-s2-2.3.0-policy.md",
+    "product_id": "speaker",
+    "model": "S2",
+    "firmware_version": "2.3.0",
+    "doc_version": "2026.10",
+    "content": "# S2 policy 知识\nS2 固件 2.3.0 的正式售后资料。\n\n# 安全与保修\n发现冒烟、烧焦味或漏电时立即断电并转人工，禁止用户拆机。保修判断以购买时间和人工审核结果为准。\n\n# 版本说明\n只可将本步骤用于标题所示型号和固件版本。"
+  }
+]

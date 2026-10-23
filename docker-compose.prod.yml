@@ -1,0 +1,14 @@
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+
+  api:
+    environment:
+      ENVIRONMENT: production
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      DEMO_MODE: "false"
+      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aftersales
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS is required}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}

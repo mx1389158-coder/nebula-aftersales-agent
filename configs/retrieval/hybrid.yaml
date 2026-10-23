@@ -1,0 +1,11 @@
+filters:
+  required: [tenant_id, product_id]
+  version_policy: exact_or_general
+bm25_top_k: 20
+dense_top_k: 20
+rrf_k: 60
+rerank_top_k: 20
+final_top_k: 6
+mmr_lambda: 0.85
+coverage_threshold: 0.16
+

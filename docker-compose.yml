@@ -1,0 +1,153 @@
+name: aftersales-agent
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: aftersales
+      POSTGRES_USER: aftersales
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aftersales-local}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-vector.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aftersales -d aftersales"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-local-development-secret-change-me-32}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      RATE_LIMIT_REQUESTS: ${RATE_LIMIT_REQUESTS:-120}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:1.5b}
+      OLLAMA_BASE_URL: ${COMPOSE_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
+      MODEL_CACHE_DIR: /models
+      CROSS_ENCODER_ENABLED: ${CROSS_ENCODER_ENABLED:-false}
+      CROSS_ENCODER_MODEL: ${CROSS_ENCODER_MODEL:-BAAI/bge-reranker-base}
+      LANGFUSE_ENABLED: ${LANGFUSE_ENABLED:-false}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://host.docker.internal:3000}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LIGHTRAG_BASE_URL: ${LIGHTRAG_BASE_URL:-}
+      LIGHTRAG_API_KEY: ${LIGHTRAG_API_KEY:-}
+      OPENVIKING_BASE_URL: ${OPENVIKING_BASE_URL:-}
+      OPENVIKING_API_KEY: ${OPENVIKING_API_KEY:-}
+      JOB_DATA_DIR: /app/data/jobs
+    volumes:
+      - job_data:/app/data/jobs
+      - ./.model-cache:/models
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-local-development-secret-change-me-32}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:1.5b}
+      OLLAMA_BASE_URL: ${COMPOSE_OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-hash}
+      MODEL_CACHE_DIR: /models
+      CROSS_ENCODER_ENABLED: ${CROSS_ENCODER_ENABLED:-false}
+      CROSS_ENCODER_MODEL: ${CROSS_ENCODER_MODEL:-BAAI/bge-reranker-base}
+      LANGFUSE_ENABLED: ${LANGFUSE_ENABLED:-false}
+      LANGFUSE_HOST: ${LANGFUSE_HOST:-http://host.docker.internal:3000}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+      LIGHTRAG_BASE_URL: ${LIGHTRAG_BASE_URL:-}
+      LIGHTRAG_API_KEY: ${LIGHTRAG_API_KEY:-}
+      OPENVIKING_BASE_URL: ${OPENVIKING_BASE_URL:-}
+      OPENVIKING_API_KEY: ${OPENVIKING_API_KEY:-}
+      JOB_DATA_DIR: /app/data/jobs
+    volumes:
+      - job_data:/app/data/jobs
+      - ./.model-cache:/models
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: apps/web
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["local-model"]
+    ports:
+      - "127.0.0.1:11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
+  job_data:
+

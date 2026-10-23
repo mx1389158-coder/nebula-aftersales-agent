@@ -1,0 +1,18 @@
+generation:
+  provider: mock
+  local:
+    provider: ollama
+    model: qwen2.5:1.5b
+    base_url: http://localhost:11434
+    temperature: 0
+    context_tokens: 4096
+
+embedding:
+  default:
+    provider: hash
+    dimensions: 256
+  experiment:
+    provider: sentence-transformers
+    model: BAAI/bge-small-zh-v1.5
+    device: cpu
+

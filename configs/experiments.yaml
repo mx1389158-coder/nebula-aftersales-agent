@@ -1,0 +1,12 @@
+retrieval:
+  R0: {retrieval_variant: no_retrieval, description: "no retrieval; model-only baseline"}
+  R1: {retrieval_variant: dense, description: "dense top-k"}
+  R2: {retrieval_variant: hybrid, description: "BM25 + dense + RRF + MMR"}
+  R3: {retrieval_variant: hybrid_rerank, description: "R2 + cross encoder"}
+  R4: {retrieval_variant: lightrag, description: "LightRAG HTTP adapter baseline"}
+  R5: {retrieval_variant: openviking, description: "OpenViking hierarchical-context HTTP adapter"}
+memory:
+  M0: {memory_variant: M0, description: "no memory"}
+  M1: {memory_variant: M1, description: "recent memory"}
+  M2: {memory_variant: M2, description: "semantic memory"}
+  M3: {memory_variant: M3, description: "governed semantic memory"}
