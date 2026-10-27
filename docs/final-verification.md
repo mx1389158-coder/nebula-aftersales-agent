@@ -48,9 +48,27 @@ R4 LightRAG 和 R5 OpenViking 的适配器、失败封闭行为和单元测试�
 - Langfuse：日本区客户端初始化成功，`release-verification` 合成 trace 已 flush；真实客户数据仍禁止跨境发送。
 - 数据：72 文档、24 固件、400 正式集、400×3 盲测版本、50 冒烟和 100 技能任务可确定性重建。
 
-## 尚需外部环境完成的两项
+## Docker Compose 实机验证
 
-1. 宿主机没有 Docker CLI。经授权已丢弃 VirtualBox `cpu-eval` 无法恢复的 saved RAM state，虚拟磁盘未删除；但冷启动仍返回 `E_FAIL`。进一步确认 Windows `VBoxSDS` 服务为 stopped，当前会话即使提权请求仍被操作系统以 `Access denied` 拒绝启动，因此 PostgreSQL/pgvector/Redis Compose 实机启动仍待管理员启动该服务或重启电脑后验证。
-2. LightRAG/OpenViking 服务端未配置。它们是研究对照组，不影响默认 hybrid 生产闭环；若验收要求 R4/R5 实测，必须先提供或启动这两个服务。
+2026-10-27 在 VirtualBox `cpu-eval` 验证机上完成了全新数据卷部署。验证机为 Linux 6.8.0-147，Docker Server 29.1.3，Compose 2.40.3；应用源代码快照为 `354af55`，Docker 构建修复提交至 `75db4d5`。
+
+| 检查项 | 结果 |
+| --- | --- |
+| Compose 配置与镜像构建 | 通过；API、worker 使用 `torch 2.14.1+cpu`，CUDA 为 `None` |
+| 容器状态 | PostgreSQL、Redis、API healthy；worker、Web running |
+| PostgreSQL | pgvector 0.8.7；Alembic `20261024_password_auth (head)` |
+| 种子知识库 | 72 文档、216 分块 |
+| Windows 到虚拟机端口 | `127.0.0.1:8000` 与 `127.0.0.1:5173` 可访问；Web HTTP 200 |
+| API 冒烟 | health `ok`、数据库 `ok`、真实登录成功 |
+| 问答闭环 | `ANSWER`，6 条引用，3 个决策轨迹步骤 |
+| Docker worker 评测 | 50/50 成功，决策/引用/工具准确率均 100%，危险动作率 0，p95 15.55 ms |
+
+首次实机构建同时修复了三项部署问题：Linux 默认解析 CUDA 版 PyTorch、弱网下载无法恢复、VirtualBox NAT 无法访问仅绑定 guest 回环地址。现在 CPU wheel 使用 PyTorch 官方索引，普通依赖支持 `PIP_INDEX_URL` 镜像、下载缓存和三轮重试；`COMPOSE_BIND_HOST` 默认仍为 `127.0.0.1`，只有虚拟机转发场景才显式改为 `0.0.0.0`。
+
+为排除旧测试卷密码干扰，验收前仅删除并重建了 `aftersales-agent_job_data`、`aftersales-agent_postgres_data`、`aftersales-agent_redis_data` 三个验证用卷。当前完整 Compose 栈保留运行，供本机继续验收。
+
+## 尚需外部环境完成的可选对照项
+
+LightRAG/OpenViking 服务端未配置。它们是研究对照组，不影响默认 hybrid 生产闭环；若验收要求 R4/R5 实测，必须先提供或启动这两个服务。适配器、失败封闭行为和测试已经完成，不会把本地 hybrid 结果伪装成外部基线。
 
 企业 CRM 不是缺项；当前项目数据库已完成带确认、幂等和时间线的工单闭环。
