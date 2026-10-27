@@ -6,6 +6,7 @@ COPY apps ./apps
 COPY packages ./packages
 COPY data ./data
 COPY evals ./evals
-RUN pip install --no-cache-dir .[postgres,observability,local-embedding]
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu "torch>=2,<3" \
+    && pip install --no-cache-dir .[postgres,observability,local-embedding]
 CMD ["python", "-m", "apps.worker.app.main"]
 
