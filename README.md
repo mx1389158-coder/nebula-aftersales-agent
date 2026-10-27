@@ -133,9 +133,12 @@ OLLAMA_MODEL=qwen2.5:1.5b
 .\.venv\Scripts\python.exe -m pytest --cov=apps --cov=packages
 npm.cmd --prefix apps/web run build
 npm.cmd --prefix apps/web audit --audit-level=high
+npm.cmd --prefix apps/web run test:e2e:windows
 ```
 
 测试重点覆盖：版本不串用、租户隔离、记忆用户隔离、敏感信息拦截、工单确认和幂等、状态图追问/回答、JWT API、Worker 评测闭环。
+
+Windows 本机的 E2E 命令使用专用启动器管理临时 API/Web 进程；Linux CI 继续执行 `npm run test:e2e`。最近一次验收视频在 `docs/demo/critical-flow-e2e.webm`，完整指标见 `docs/final-verification.md`。
 
 ## 关键 API
 

@@ -134,9 +134,7 @@ class GovernedMemoryStore:
 
             active = [item for item in rows if still_valid(item) and item.id not in superseded]
         query_vector = self.embedder.embed(query)
-        query_identifiers = {
-            token.lower() for token in re.findall(r"\b[A-Za-z]+[-_]?\d+\b", query)
-        }
+        query_identifiers = {token.lower() for token in re.findall(r"\b[A-Za-z]+[-_]?\d+\b", query)}
 
         def rank(item: Memory) -> tuple[bool, float]:
             item_identifiers = {
