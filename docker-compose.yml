@@ -35,6 +35,8 @@ services:
     build:
       context: .
       dockerfile: apps/api/Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
@@ -83,6 +85,8 @@ services:
     build:
       context: .
       dockerfile: apps/worker/Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
