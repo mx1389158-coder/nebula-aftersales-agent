@@ -1,6 +1,6 @@
 # 星云智家售后服务智能体
 
-一个可本地复现的 AI Agent + RAG + 全栈工程，实现版本感知检索、可治理长期记忆、带确认与幂等保护的工单工具、候选技能审批和固定回归评测。
+一个可本地复现的 Java 21 + Python 3.11 双后端 AI 售后平台。Spring Boot 负责身份、设备、工单、事务与审计等业务事实；FastAPI + LangGraph 负责 Agent、RAG、长期记忆、工具编排与评测。
 
 默认模式不需要云 API：系统使用确定性模板生成器和 256 维哈希向量，适合先验证业务闭环。切换 `LLM_PROVIDER=ollama` 后可接入本地 3B/4B 模型；PostgreSQL 环境会把嵌入保存为 `vector(256)` 并创建 HNSW 索引。
 
@@ -8,48 +8,49 @@
 
 | 方案阶段 | 当前实现 |
 | --- | --- |
-| P0 基础环境 | Python 3.11、Node 22、Conda 文件、Docker Compose、健康检查、CI |
-| P1 最小闭环 | FastAPI、Vue 操作台、真实账号登录、LangGraph 状态图、可取消 token SSE、限流、引用、工具确认、人工转接、会话与断点持久化 |
-| P2 检索工程 | 异步 ETL、结构化分块、BM25/Dense/RRF/Cross-Encoder/MMR、版本与生效时间过滤、发布与回滚、LightRAG/OpenViking 实验适配器 |
-| P3 记忆与工具 | tenant/user 隔离、敏感信息拦截、同意开关、记忆治理、Mem0 适配器、工单确认/幂等/时间线、设备归属、审计日志 |
-| P4 经验复用 | 正向反馈生成候选 Skill、静态检查、回归门禁、人工审批、灰度、停用和版本回滚 |
-| P5 评测与交付 | 50 条冒烟集、400 条唯一盲测集、100 条技能任务集、R0-R5/M0-M3、可靠 Worker、质量/安全/时延指标、Docker、测试、ADR |
+| P0 基础环境 | Java 21、Python 3.11、Node 22、`biz`/`ai` 独立数据域、Docker Compose、健康检查、CI |
+| P1 业务闭环 | Spring Security JWT、产品/设备、工单状态机、事务事件、数据库幂等、乐观锁、Redis 缓存/限流与审计 |
+| P2 Agent 闭环 | FastAPI、LangGraph、SSE、确认恢复、Java HTTP Tool、会话与断点持久化 |
+| P3 检索工程 | 异步 ETL、结构化分块、BM25/Dense/RRF/Cross-Encoder/MMR、版本与生效时间过滤、发布与回滚、LightRAG/OpenViking 实验适配器 |
+| P4 记忆与前端 | tenant/user 隔离、敏感信息拦截、记忆治理、设备中心、工单工作台、知识与评测页面 |
+| P5 可靠性评测 | 50 条冒烟集、400 条唯一盲测集、100 条技能任务集、R0-R5/M0-M3、可靠 Worker 与故障分支 |
+| P6 交付材料 | 双后端架构文档、部署手册、CI、测试记录、演示视频与可复现实验数据 |
 
 ## 架构
 
 ```text
 Vue 3 操作台
-    │ JWT / SSE / REST
-FastAPI ── 会话、知识、记忆、工单、技能、评测 API ── Redis 唤醒
-    │
-LangGraph ── 上下文补全 → 记忆检索 → 版本过滤 → 混合检索 → 决策 → 回答/拒答
-    │
-SQLAlchemy ── SQLite（零依赖开发）/ PostgreSQL + pgvector（Compose）
-    │
-Worker ── PostgreSQL 原子领取/租约/心跳/重试/死信 ── ETL、评测、过期清理
+    ├── /api/business/* → Spring Boot / Security / MyBatis / Flyway
+    └── /api/ai/*       → FastAPI / LangGraph / RAG / Memory / Worker
+                              │ 用户 JWT + Idempotency-Key
+                              └──────────────→ Java Business API
+PostgreSQL + pgvector：biz（Java）/ ai（Python）独立账号与 Schema
+Redis：产品缓存、限流、后台任务唤醒
 ```
 
 关键设计不是把用户画像、知识库和业务数据塞进同一个向量库：
 
 - 产品知识按 `tenant_id + product_id + model + firmware_version` 过滤后才排序。
 - 长期记忆按 `tenant_id + user_id` 硬隔离，带来源、置信度、有效期、同意状态和软删除。
-- 工单属于确定性写工具，未确认时返回 `need_confirm`，重复幂等键只返回原工单。
-- 本项目数据库是默认且完整的工单后端，不依赖企业 CRM；未来确有第三方系统时再通过工具契约接入。
+- 工单属于 Java 权威业务域；Agent 未确认时暂停，恢复后转发当前用户 JWT，并由 Java 做归属校验、事务和幂等。
+- Python 不直接写 `biz` 表；跨服务请求统一携带 `X-Request-ID` / `X-Trace-ID`。
 - 未审核或没有回归测试的 Skill 不能激活。
 
 ## 目录
 
 ```text
+backend-java/             Java 21 Spring Boot 业务服务与 Flyway 迁移
 apps/api/                 FastAPI 应用、路由、领域模型和文档服务
 apps/worker/              评测后台 Worker
 apps/web/                 Vue 3 + TypeScript 操作台
 packages/agent_core/      LangGraph 状态与模型 Provider
 packages/context/         分块、向量、混合检索、记忆治理
-packages/tools/           设备、手册和工单工具协议
+packages/tools/           Java 业务客户端、设备、手册和工单工具协议
 configs/                  模型、检索和 Prompt 版本配置
 data/fixtures/            虚构品牌演示数据
 evals/datasets/           固定回归集
-infra/migrations/         Alembic 初始数据库迁移
+infra/migrations/         Python `ai` 数据域 Alembic 迁移
+infra/postgres/           `biz` / `ai` 账号与 Schema 初始化
 tests/                    单元与端到端测试
 docs/adr/                 架构决策记录
 ```
@@ -94,10 +95,10 @@ Copy-Item .env.example .env
 docker compose up --build
 ```
 
-该模式启动 PostgreSQL/pgvector、Redis、API、Worker 和 Web。若要同时启动 Ollama：
+该模式启动 PostgreSQL/pgvector、Redis、Java Business、Python AI、Worker 和 Web。演示账号为 `demo@example.com / demo-change-me`，售后账号为 `support@example.com / support-change-me`。若要同时启动 Ollama：
 
 ```powershell
-docker compose --profile local-model up --build
+docker compose -f docker-compose.yml -f docker-compose.demo.yml --profile local-model up --build
 ```
 
 生产或共享环境使用 `docker-compose.prod.yml` 叠加配置，必须更换密钥和数据库密码、关闭演示模式，并按需设置一次性初始管理员。完整步骤见 `docs/deployment-runbook.md`。
@@ -144,24 +145,21 @@ Windows 本机的 E2E 命令使用专用启动器管理临时 API/Web 进程；L
 
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
-| `POST` | `/api/v1/auth/login` | 邮箱和密码登录 |
-| `POST` | `/api/v1/auth/demo-token` | 本地演示令牌 |
-| `POST` | `/api/v1/chat` | 完整回答、引用和决策轨迹 |
-| `POST` | `/api/v1/chat/stream` | SSE 事件流 |
-| `POST/GET` | `/api/v1/documents` | 创建异步导入任务、查看知识版本 |
-| `GET/POST` | `/api/v1/jobs/{id}` | 查询进度、重试死信任务 |
-| `POST` | `/api/v1/documents/{id}/publish` | 发布或归档知识版本 |
-| `POST` | `/api/v1/documents/{id}/rollback/{version}` | 回滚知识版本 |
-| `GET/POST/PATCH/DELETE` | `/api/v1/memories` | 用户可治理记忆 |
-| `GET/POST` | `/api/v1/tickets` | 工单查询和确认后创建 |
-| `GET/POST` | `/api/v1/skills` | 候选技能、版本、门禁、灰度和回滚 |
-| `POST` | `/api/v1/feedback` | 会话反馈及候选技能提取 |
-| `GET/PATCH` | `/api/v1/handoffs` | 人工接管队列 |
-| `POST` | `/api/v1/evals/run` | 创建固定回归任务 |
-| `POST` | `/api/v1/evals/matrix` | 创建 R0-R5/M0-M3 实验矩阵 |
-| `POST` | `/api/v1/evals/skill-matrix` | 创建无技能/人工技能/抽取技能实验 |
+| `POST` | `/api/business/v1/auth/login` | Java 登录并签发用户 JWT |
+| `GET` | `/api/business/v1/products` | Java 权威产品目录 |
+| `GET/POST/PATCH` | `/api/business/v1/devices` | Java 设备归属与乐观锁更新 |
+| `GET/POST/PATCH` | `/api/business/v1/tickets` | Java 权威工单、状态机和幂等创建 |
+| `POST` | `/api/ai/v1/chat` | Agent 完整回答、引用和决策轨迹 |
+| `POST` | `/api/ai/v1/chat/{thread_id}/resume` | 恢复确认后的写操作 |
+| `POST` | `/api/ai/v1/chat/stream` | SSE 事件流 |
+| `GET/POST` | `/api/ai/v1/conversations` | 会话与消息历史 |
+| `POST/GET` | `/api/ai/v1/documents` | 创建异步导入任务、查看知识版本 |
+| `GET/POST` | `/api/ai/v1/jobs/{id}` | 查询进度、重试死信任务 |
+| `GET/POST/PATCH/DELETE` | `/api/ai/v1/memories` | 用户可治理记忆 |
+| `GET/POST` | `/api/ai/v1/skills` | 候选技能、版本、门禁、灰度和回滚 |
+| `POST` | `/api/ai/v1/evals/matrix` | 创建 R0-R5/M0-M3 实验矩阵 |
 
-`/tickets` 使用本项目数据库完成工单闭环，已经是可验收的默认实现。Zammad、GLPI、Frappe Helpdesk 或企业自有 CRM 只属于未来可选集成，不影响当前功能完整性。
+工单默认落在 Java 管理的 `biz` 数据域；Python 只保存会话、Checkpoint 和身份投影，不再作为双后端模式下的业务写入方。旧 `/api/v1` 仅用于显式开启的本地兼容模式。Zammad、GLPI、Frappe Helpdesk 或企业自有 CRM 属于未来可选集成，不影响当前闭环。
 
 ## 参考项目的使用边界
 

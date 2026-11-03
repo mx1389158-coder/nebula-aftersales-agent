@@ -11,8 +11,8 @@ from sqlalchemy.orm import Session
 
 from apps.api.app.core.database import get_db
 from apps.api.app.core.security import get_principal
-from apps.api.app.models import Conversation, Message
-from apps.api.app.schemas import ChatRequest, ChatResponse, Citation, Principal
+from apps.api.app.models import AgentCheckpoint, Conversation, Message
+from apps.api.app.schemas import ChatRequest, ChatResponse, Citation, Principal, ResumeRequest
 from packages.agent_core import AgentRuntime
 
 router = APIRouter()
@@ -43,6 +43,7 @@ def _run_chat(request: ChatRequest, principal: Principal, session: Session) -> C
             "thread_id": thread_id,
             "tenant_id": principal.tenant_id,
             "user_id": principal.user_id,
+            "access_token": principal.access_token,
         }
     )
     citations = [
@@ -90,6 +91,40 @@ def chat(
     return _run_chat(request, principal, session)
 
 
+@router.post("/{thread_id}/resume", response_model=ChatResponse)
+def resume_chat(
+    thread_id: str,
+    request: ResumeRequest,
+    principal: Principal = Depends(get_principal),
+    session: Session = Depends(get_db),
+) -> ChatResponse:
+    checkpoint = session.scalar(
+        select(AgentCheckpoint).where(
+            AgentCheckpoint.thread_id == thread_id,
+            AgentCheckpoint.tenant_id == principal.tenant_id,
+            AgentCheckpoint.user_id == principal.user_id,
+        )
+    )
+    if not checkpoint or not checkpoint.pending_action:
+        from fastapi import HTTPException
+
+        raise HTTPException(status_code=409, detail="该会话没有等待恢复的操作")
+    pending = checkpoint.pending_action
+    return _run_chat(
+        ChatRequest(
+            message=request.message
+            or str(pending.get("summary") or pending.get("fact") or "恢复操作"),
+            thread_id=thread_id,
+            device_id=pending.get("device_id"),
+            confirmed=request.confirmed,
+            contact=request.contact or pending.get("contact"),
+            idempotency_key=pending.get("idempotency_key"),
+        ),
+        principal,
+        session,
+    )
+
+
 @router.post("/stream")
 def chat_stream(
     request: ChatRequest,
@@ -123,6 +158,7 @@ def chat_stream(
                 "thread_id": thread_id,
                 "tenant_id": principal.tenant_id,
                 "user_id": principal.user_id,
+                "access_token": principal.access_token,
                 "_defer_answer": True,
             }
         )

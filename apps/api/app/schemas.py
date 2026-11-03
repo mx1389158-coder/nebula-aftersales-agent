@@ -14,6 +14,7 @@ class Principal(BaseModel):
     user_id: str
     tenant_id: str
     role: str = "user"
+    access_token: str | None = Field(default=None, exclude=True)
 
 
 class TokenResponse(BaseModel):
@@ -47,6 +48,12 @@ class ChatRequest(BaseModel):
     confirmed: bool = False
     contact: str | None = Field(default=None, max_length=120)
     idempotency_key: str | None = Field(default=None, min_length=8, max_length=100)
+
+
+class ResumeRequest(BaseModel):
+    confirmed: bool
+    message: str | None = Field(default=None, max_length=8000)
+    contact: str | None = Field(default=None, max_length=120)
 
 
 class ChatResponse(BaseModel):

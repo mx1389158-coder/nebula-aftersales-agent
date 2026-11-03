@@ -7,11 +7,14 @@ services:
       POSTGRES_DB: aftersales
       POSTGRES_USER: aftersales
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aftersales-local}
+      BIZ_DB_PASSWORD: ${BIZ_DB_PASSWORD:-aftersales-biz-local}
+      AI_DB_PASSWORD: ${AI_DB_PASSWORD:-aftersales-ai-local}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/01-vector.sql:ro
+      - ./infra/postgres/01-domains.sh:/docker-entrypoint-initdb.d/01-domains.sh:ro
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/02-vector.sql:ro
     ports:
-      - "127.0.0.1:5432:5432"
+      - "${COMPOSE_BIND_HOST:-127.0.0.1}:${POSTGRES_HOST_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U aftersales -d aftersales"]
       interval: 5s
@@ -24,12 +27,39 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "127.0.0.1:6379:6379"
+      - "${COMPOSE_BIND_HOST:-127.0.0.1}:${REDIS_HOST_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
+
+  business:
+    build:
+      context: backend-java
+      args:
+        MAVEN_IMAGE: ${MAVEN_IMAGE:-m.daocloud.io/docker.io/library/maven:3.9.11-eclipse-temurin-21}
+        JAVA_IMAGE: ${JAVA_IMAGE:-m.daocloud.io/docker.io/library/eclipse-temurin:21-jre}
+    environment:
+      BIZ_DATABASE_URL: jdbc:postgresql://postgres:5432/aftersales
+      BIZ_DATABASE_USER: aftersales_biz
+      BIZ_DATABASE_PASSWORD: ${BIZ_DB_PASSWORD:-aftersales-biz-local}
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-local-development-secret-change-me-32}
+      JWT_ISSUER: ${JWT_ISSUER:-nebula-business-service}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-nebula-platform}
+    ports:
+      - "${COMPOSE_BIND_HOST:-127.0.0.1}:${BUSINESS_HOST_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/business/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
 
   api:
     build:
@@ -39,9 +69,15 @@ services:
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
+      DATABASE_URL: postgresql+psycopg://aftersales_ai:${AI_DB_PASSWORD:-aftersales-ai-local}@postgres:5432/aftersales?options=-csearch_path%3Dai%2Cpublic
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY:-local-development-secret-change-me-32}
+      JWT_ISSUER: ${JWT_ISSUER:-nebula-business-service}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-nebula-platform}
+      API_PREFIX: /api/ai/v1
+      ENABLE_LEGACY_API: "false"
+      BUSINESS_SERVICE_ENABLED: "true"
+      BUSINESS_SERVICE_URL: http://business:8080
       DEMO_MODE: ${DEMO_MODE:-true}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
@@ -69,14 +105,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "${COMPOSE_BIND_HOST:-127.0.0.1}:8000:8000"
+      - "${COMPOSE_BIND_HOST:-127.0.0.1}:${AI_HOST_PORT:-8000}:8000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+      business:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/ai/v1/health')"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -89,9 +127,14 @@ services:
         PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
-      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:-aftersales-local}@postgres:5432/aftersales
+      DATABASE_URL: postgresql+psycopg://aftersales_ai:${AI_DB_PASSWORD:-aftersales-ai-local}@postgres:5432/aftersales?options=-csearch_path%3Dai%2Cpublic
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY:-local-development-secret-change-me-32}
+      JWT_ISSUER: ${JWT_ISSUER:-nebula-business-service}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-nebula-platform}
+      API_PREFIX: /api/ai/v1
+      BUSINESS_SERVICE_ENABLED: "true"
+      BUSINESS_SERVICE_URL: http://business:8080
       DEMO_MODE: ${DEMO_MODE:-true}
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:1.5b}
@@ -119,14 +162,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      business:
+        condition: service_healthy
 
   web:
     build:
       context: apps/web
     ports:
-      - "${COMPOSE_BIND_HOST:-127.0.0.1}:5173:80"
+      - "${COMPOSE_BIND_HOST:-127.0.0.1}:${WEB_HOST_PORT:-5173}:80"
     depends_on:
       api:
+        condition: service_healthy
+      business:
         condition: service_healthy
 
   ollama:

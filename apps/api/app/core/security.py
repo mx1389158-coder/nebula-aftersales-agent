@@ -46,6 +46,9 @@ def create_access_token(principal: Principal) -> str:
         "sub": principal.user_id,
         "tenant_id": principal.tenant_id,
         "role": principal.role,
+        "roles": [principal.role.upper()],
+        "iss": settings.jwt_issuer,
+        "aud": settings.jwt_audience,
         "iat": now,
         "exp": now + timedelta(minutes=settings.access_token_minutes),
     }
@@ -60,11 +63,18 @@ def get_principal(
 ) -> Principal:
     if credentials:
         try:
-            payload = jwt.decode(credentials.credentials, settings.secret_key, algorithms=["HS256"])
+            payload = jwt.decode(
+                credentials.credentials,
+                settings.secret_key,
+                algorithms=["HS256"],
+                issuer=settings.jwt_issuer,
+                audience=settings.jwt_audience,
+            )
             principal = Principal(
                 user_id=str(payload["sub"]),
                 tenant_id=str(payload["tenant_id"]),
-                role=str(payload.get("role", "user")),
+                role=str(payload.get("role", "user")).lower(),
+                access_token=credentials.credentials,
             )
         except jwt.PyJWTError as exc:
             raise HTTPException(
@@ -89,9 +99,27 @@ def get_principal(
             User.is_active.is_(True),
         )
     )
+    if not user and credentials and settings.business_service_enabled:
+        # AI tables retain a minimal identity projection for foreign keys only.
+        # Authentication and all business authorization remain owned by Java.
+        user = User(
+            id=principal.user_id,
+            tenant_id=principal.tenant_id,
+            email=f"java-{principal.user_id}@identity.local",
+            display_name=str(payload.get("username", "业务服务用户")),
+            role=principal.role,
+            is_active=True,
+        )
+        session.add(user)
+        session.commit()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户不存在或已停用")
-    return Principal(user_id=user.id, tenant_id=user.tenant_id, role=user.role)
+    return Principal(
+        user_id=user.id,
+        tenant_id=user.tenant_id,
+        role=principal.role if credentials else user.role,
+        access_token=principal.access_token,
+    )
 
 
 def require_admin(principal: Principal = Depends(get_principal)) -> Principal:

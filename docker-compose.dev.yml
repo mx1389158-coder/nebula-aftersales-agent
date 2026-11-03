@@ -1,0 +1,9 @@
+services:
+  api:
+    environment:
+      ENVIRONMENT: development
+      ENABLE_LEGACY_API: "true"
+      LLM_PROVIDER: mock
+  business:
+    environment:
+      BUSINESS_RATE_LIMIT_REQUESTS: 1000

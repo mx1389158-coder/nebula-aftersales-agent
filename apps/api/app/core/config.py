@@ -13,8 +13,12 @@ class Settings(BaseSettings):
 
     app_name: str = "星云智家售后服务智能体"
     environment: str = "development"
-    api_prefix: str = "/api/v1"
+    api_prefix: str = "/api/ai/v1"
+    legacy_api_prefix: str = "/api/v1"
+    enable_legacy_api: bool = True
     secret_key: str = "change-me-before-production-at-least-32-bytes"
+    jwt_issuer: str = "nebula-business-service"
+    jwt_audience: str = "nebula-platform"
     access_token_minutes: int = 480
     database_url: str = "sqlite:///./aftersales.db"
     redis_url: str = "redis://localhost:6379/0"
@@ -26,6 +30,10 @@ class Settings(BaseSettings):
     bootstrap_admin_password: str = ""
     rate_limit_requests: int = 120
     rate_limit_window_seconds: int = 60
+    business_service_url: str = ""
+    business_service_enabled: bool = False
+    business_service_timeout_seconds: float = 5.0
+    business_service_token: str = ""
 
     llm_provider: str = "mock"
     ollama_base_url: str = "http://localhost:11434"

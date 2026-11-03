@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: nebula-business-service
+  datasource:
+    url: ${BIZ_DATABASE_URL:jdbc:postgresql://localhost:5432/aftersales}
+    username: ${BIZ_DATABASE_USER:aftersales_biz}
+    password: ${BIZ_DATABASE_PASSWORD:aftersales-biz-local}
+  flyway:
+    enabled: true
+    create-schemas: true
+    default-schema: biz
+    schemas: biz
+    locations: classpath:db/migration
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379/0}
+      connect-timeout: 2s
+      timeout: 2s
+  cache:
+    type: redis
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-statement-timeout: 8
+
+server:
+  port: ${BUSINESS_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+nebula:
+  security:
+    jwt-secret: ${SECRET_KEY:local-development-secret-change-me-32}
+    issuer: ${JWT_ISSUER:nebula-business-service}
+    audience: ${JWT_AUDIENCE:nebula-platform}
+    access-token-minutes: ${ACCESS_TOKEN_MINUTES:480}
+  rate-limit:
+    requests: ${BUSINESS_RATE_LIMIT_REQUESTS:180}
+    window-seconds: ${BUSINESS_RATE_LIMIT_WINDOW_SECONDS:60}
+
+logging:
+  pattern:
+    level: "%5p [request_id=%X{request_id:-}]"

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { api, login, logout, stableIdempotencyKey, streamChat, type ChatResult } from './api'
+import { api, businessApi, login, logout, resumeChat, stableIdempotencyKey, streamChat, type ChatResult } from './api'
 
-type Tab = 'chat' | 'knowledge' | 'memory' | 'tickets' | 'skills' | 'evals'
+type Tab = 'chat' | 'devices' | 'knowledge' | 'memory' | 'tickets' | 'skills' | 'evals'
 type MemoryItem = { id: string; kind: string; fact: string; confidence: number; status: string; created_at: string }
 type DocumentItem = { id: string; title: string; model?: string; firmware_version?: string; doc_version: string; status: string }
-type TicketItem = { id: string; status: string; summary: string; contact: string; created_at: string }
+type TicketItem = { id: string; ticket_no: string; status: string; summary: string; contact: string; version: number; created_at: string }
+type DeviceItem = { id: string; serial_no: string; nickname?: string; product_name: string; model_code: string; firmware_version: string; version: number }
 type EvalRun = { id: string; dataset_version: string; status: string; metrics: Record<string, unknown>; created_at: string }
 type Job = { id: string; status: string; progress: number; error?: string; result: Record<string, unknown> }
 type Skill = { id: string; name: string; status: string; active_version?: number; rollout_percent: number; success_count: number; failure_count: number }
@@ -23,26 +24,28 @@ const memories = ref<MemoryItem[]>([])
 const memoryFact = ref('我使用的是 X2 路由器，固件版本 2.1.0')
 const documents = ref<DocumentItem[]>([])
 const tickets = ref<TicketItem[]>([])
+const devices = ref<DeviceItem[]>([])
+const selectedDeviceId = ref('')
 const evals = ref<EvalRun[]>([])
 const ticketSummary = ref('X2 固件 2.1.0 无法取得 WAN 地址，重启后仍未恢复')
 const ticketContact = ref('13800000000')
-const ticketConfirmed = ref(false)
 const uploadFile = ref<File>()
 const uploadJob = ref<Job>()
 const autoMemory = ref(false)
 const skills = ref<Skill[]>([])
 const chatContact = ref('13800000000')
 const needsLogin = ref(false)
-const loginEmail = ref('')
+const loginEmail = ref('demo@example.com')
 const loginPassword = ref('')
 
 const nav = [
   { key: 'chat', label: '智能会话', index: '01' },
-  { key: 'knowledge', label: '知识版本', index: '02' },
-  { key: 'memory', label: '记忆中心', index: '03' },
-  { key: 'tickets', label: '工单闭环', index: '04' },
-  { key: 'skills', label: '技能治理', index: '05' },
-  { key: 'evals', label: '评测观测', index: '06' },
+  { key: 'devices', label: '设备中心', index: '02' },
+  { key: 'knowledge', label: '知识版本', index: '03' },
+  { key: 'memory', label: '记忆中心', index: '04' },
+  { key: 'tickets', label: '工单闭环', index: '05' },
+  { key: 'skills', label: '技能治理', index: '06' },
+  { key: 'evals', label: '评测观测', index: '07' },
 ] as const
 
 const lastResult = computed(() => [...messages.value].reverse().find((item) => item.result)?.result)
@@ -86,7 +89,8 @@ async function confirmPending() {
   messages.value.push({ role: 'user', content: '确认执行上述操作' })
   question.value = ''
   await run(async () => {
-    const result = await api<ChatResult>('/chat', { method: 'POST', body: JSON.stringify({ message: content, thread_id: threadId.value, confirmed: true, contact: pending.contact }) })
+    if (!threadId.value) throw new Error('会话状态不存在，请重新发起请求')
+    const result = await resumeChat(threadId.value, { confirmed: true, message: content, contact: pending.contact })
     messages.value.push({ role: 'assistant', content: result.answer, result })
   })
 }
@@ -134,10 +138,18 @@ async function publishDocument(id: string) {
   await run(async () => { await api(`/documents/${id}/publish`, { method: 'POST', body: JSON.stringify({ active: true }) }); await loadDocuments() })
 }
 
-async function loadTickets() { tickets.value = await api<TicketItem[]>('/tickets') }
+async function loadDevices() {
+  devices.value = await businessApi<DeviceItem[]>('/devices')
+  if (!selectedDeviceId.value && devices.value[0]) selectedDeviceId.value = devices.value[0].id
+}
+async function loadTickets() { tickets.value = await businessApi<TicketItem[]>('/tickets') }
 async function createTicket() {
   await run(async () => {
-    await api('/tickets', { method: 'POST', body: JSON.stringify({ summary: ticketSummary.value, contact: ticketContact.value, idempotency_key: stableIdempotencyKey(ticketSummary.value), confirmed: ticketConfirmed.value }) })
+    await businessApi('/tickets', {
+      method: 'POST',
+      headers: { 'Idempotency-Key': stableIdempotencyKey(ticketSummary.value) },
+      body: JSON.stringify({ summary: ticketSummary.value, contact: ticketContact.value, device_id: selectedDeviceId.value || null }),
+    })
     await loadTickets()
   })
 }
@@ -153,6 +165,7 @@ async function deactivateSkill(id: string) { await run(async () => { await api(`
 async function switchTab(next: Tab) {
   tab.value = next
   if (next === 'memory') await run(loadMemories)
+  if (next === 'devices') await run(loadDevices)
   if (next === 'knowledge') await run(loadDocuments)
   if (next === 'tickets') await run(loadTickets)
   if (next === 'evals') await run(loadEvals)
@@ -161,7 +174,7 @@ async function switchTab(next: Tab) {
 
 async function initialize() {
   try {
-    await Promise.all([loadMemories(), loadMemorySettings(), loadDocuments(), loadTickets(), loadSkills(), loadEvals()])
+    await Promise.all([loadMemories(), loadMemorySettings(), loadDocuments(), loadDevices(), loadTickets(), loadSkills(), loadEvals()])
     needsLogin.value = false
   } catch (reason) {
     needsLogin.value = true
@@ -255,6 +268,14 @@ onMounted(initialize)
         </aside>
       </section>
 
+      <section v-else-if="tab === 'devices'" class="workspace-grid">
+        <div class="panel score-panel"><div class="panel-title"><span>BUSINESS FACTS</span><strong>Java 权威设备域</strong></div><div class="score-number">{{ devices.length }}<span>DEVICES</span></div><p>设备归属、产品型号和固件版本由 Spring Boot 业务服务校验；Agent 仅通过受鉴权 API 读取。</p></div>
+        <div class="panel table-panel"><div class="panel-title"><span>OWNERSHIP</span><strong>我的设备</strong></div>
+          <article v-for="device in devices" :key="device.id" class="ticket"><span class="ticket-id">{{ device.model_code }}</span><div><strong>{{ device.nickname || device.product_name }}</strong><small>{{ device.serial_no }} · 固件 {{ device.firmware_version }}</small></div><span class="badge active">已绑定</span></article>
+          <div v-if="!devices.length" class="table-empty">暂无绑定设备</div>
+        </div>
+      </section>
+
       <section v-else-if="tab === 'knowledge'" class="workspace-grid">
         <div class="panel form-panel"><div class="panel-title"><span>INGEST</span><strong>导入版本化知识</strong></div>
           <div class="dropzone"><input type="file" accept=".pdf,.md,.txt,.html" @change="uploadFile = ($event.target as HTMLInputElement).files?.[0]" /><strong>{{ uploadFile?.name || '选择售后文档' }}</strong><span>PDF / Markdown / TXT / HTML，最大 20MB</span></div>
@@ -284,12 +305,12 @@ onMounted(initialize)
 
       <section v-else-if="tab === 'tickets'" class="workspace-grid">
         <div class="panel form-panel"><div class="panel-title"><span>WRITE TOOL</span><strong>创建售后工单</strong></div>
+          <label>关联设备<select v-model="selectedDeviceId"><option value="">不关联设备</option><option v-for="device in devices" :key="device.id" :value="device.id">{{ device.model_code }} · {{ device.nickname || device.serial_no }}</option></select></label>
           <label>故障摘要<textarea v-model="ticketSummary" rows="5" /></label><label>联系方式<input v-model="ticketContact" /></label>
-          <label class="confirm"><input v-model="ticketConfirmed" type="checkbox" />我已核对摘要和联系方式，确认创建工单</label>
           <button class="primary" :disabled="busy" @click="createTicket">提交幂等写操作</button>
         </div>
         <div class="panel table-panel"><div class="panel-title"><span>TIMELINE</span><strong>工单状态</strong></div>
-          <article v-for="ticket in tickets" :key="ticket.id" class="ticket"><span class="ticket-id">#{{ ticket.id.slice(0, 8) }}</span><div><strong>{{ ticket.summary }}</strong><small>{{ ticket.contact }} · {{ new Date(ticket.created_at).toLocaleString() }}</small></div><span class="badge active">{{ ticket.status }}</span></article>
+          <article v-for="ticket in tickets" :key="ticket.id" class="ticket"><span class="ticket-id">{{ ticket.ticket_no || `#${ticket.id.slice(0, 8)}` }}</span><div><strong>{{ ticket.summary }}</strong><small>{{ ticket.contact }} · {{ new Date(ticket.created_at).toLocaleString() }} · v{{ ticket.version }}</small></div><span class="badge active">{{ ticket.status }}</span></article>
           <div v-if="!tickets.length" class="table-empty">暂无工单</div>
         </div>
       </section>

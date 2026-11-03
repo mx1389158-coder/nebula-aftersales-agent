@@ -2,10 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from apps.api.app.core.config import settings
 from apps.api.app.core.database import get_db
 from apps.api.app.core.security import get_principal, require_admin
 from apps.api.app.models import Ticket, TicketEvent
 from apps.api.app.schemas import Principal, TicketCreate, TicketUpdate, TicketView
+from packages.tools.java_business import JavaBusinessClient
 from packages.tools.tickets import TicketTools
 
 router = APIRouter()
@@ -14,7 +16,15 @@ router = APIRouter()
 @router.get("", response_model=list[TicketView])
 def list_tickets(
     principal: Principal = Depends(get_principal), session: Session = Depends(get_db)
-) -> list[Ticket]:
+) -> list[Ticket] | list[dict[str, object]]:
+    if settings.business_service_enabled:
+        if not principal.access_token:
+            raise HTTPException(status_code=401, detail="缺少业务服务访问令牌")
+        result = JavaBusinessClient().list_tickets(access_token=principal.access_token)
+        if result.status != "success":
+            raise HTTPException(status_code=502, detail=result.model_dump())
+        value = result.data.get("value", result.data)
+        return value if isinstance(value, list) else []
     return list(
         session.scalars(
             select(Ticket)
@@ -31,7 +41,10 @@ def create_ticket(
     session: Session = Depends(get_db),
 ) -> dict:
     result = TicketTools(session).create_ticket(
-        tenant_id=principal.tenant_id, user_id=principal.user_id, **payload.model_dump()
+        tenant_id=principal.tenant_id,
+        user_id=principal.user_id,
+        access_token=principal.access_token,
+        **payload.model_dump(),
     )
     if result.status == "need_confirm":
         raise HTTPException(status_code=409, detail=result.model_dump())
@@ -47,7 +60,10 @@ def ticket_status(
     session: Session = Depends(get_db),
 ) -> dict:
     result = TicketTools(session).get_ticket_status(
-        tenant_id=principal.tenant_id, user_id=principal.user_id, ticket_id=ticket_id
+        tenant_id=principal.tenant_id,
+        user_id=principal.user_id,
+        ticket_id=ticket_id,
+        access_token=principal.access_token,
     )
     if result.status == "not_found":
         raise HTTPException(status_code=404, detail=result.message_for_model)

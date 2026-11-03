@@ -1,0 +1,13 @@
+services:
+  api:
+    environment:
+      ENVIRONMENT: testing
+      DEMO_MODE: "true"
+      LLM_PROVIDER: mock
+      EMBEDDING_PROVIDER: hash
+      CROSS_ENCODER_ENABLED: "false"
+  worker:
+    environment:
+      ENVIRONMENT: testing
+      LLM_PROVIDER: mock
+      EMBEDDING_PROVIDER: hash

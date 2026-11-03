@@ -1,4 +1,5 @@
-const API_ROOT = import.meta.env.VITE_API_ROOT ?? '/api/v1'
+const AI_API_ROOT = import.meta.env.VITE_AI_API_ROOT ?? '/api/ai/v1'
+const BUSINESS_API_ROOT = import.meta.env.VITE_BUSINESS_API_ROOT ?? '/api/business/v1'
 
 const storage = typeof window === 'undefined' ? undefined : window.localStorage
 let token = storage?.getItem('aftersales-token') ?? ''
@@ -8,11 +9,11 @@ function saveToken(value: string) {
   storage?.setItem('aftersales-token', value)
 }
 
-export async function login(email: string, password: string): Promise<void> {
-  const response = await fetch(`${API_ROOT}/auth/login`, {
+export async function login(username: string, password: string): Promise<void> {
+  const response = await fetch(`${BUSINESS_API_ROOT}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ username, password }),
   })
   if (!response.ok) throw new Error('邮箱或密码错误')
   saveToken((await response.json()).access_token)
@@ -25,24 +26,30 @@ export function logout() {
 
 async function ensureToken() {
   if (token) return token
-  const response = await fetch(`${API_ROOT}/auth/demo-token`, { method: 'POST' })
-  if (!response.ok) throw new Error('无法获取演示访问令牌')
-  saveToken((await response.json()).access_token)
-  return token
+  throw new Error('请先登录')
 }
 
-export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(root: string, path: string, init: RequestInit = {}): Promise<T> {
   const accessToken = await ensureToken()
   const headers = new Headers(init.headers)
   headers.set('Authorization', `Bearer ${accessToken}`)
+  headers.set('X-Request-ID', crypto.randomUUID())
   if (init.body && !(init.body instanceof FormData)) headers.set('Content-Type', 'application/json')
-  const response = await fetch(`${API_ROOT}${path}`, { ...init, headers })
+  const response = await fetch(`${root}${path}`, { ...init, headers })
   if (!response.ok) {
     const detail = await response.json().catch(() => ({ detail: response.statusText }))
     throw new Error(typeof detail.detail === 'string' ? detail.detail : JSON.stringify(detail.detail))
   }
   if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
+}
+
+export function api<T>(path: string, init: RequestInit = {}): Promise<T> {
+  return request<T>(AI_API_ROOT, path, init)
+}
+
+export function businessApi<T>(path: string, init: RequestInit = {}): Promise<T> {
+  return request<T>(BUSINESS_API_ROOT, path, init)
 }
 
 export type Citation = {
@@ -75,7 +82,7 @@ export async function streamChat(
   onEvent: (item: StreamEvent) => void,
 ): Promise<void> {
   const accessToken = await ensureToken()
-  const response = await fetch(`${API_ROOT}/chat/stream`, {
+  const response = await fetch(`${AI_API_ROOT}/chat/stream`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -100,6 +107,16 @@ export async function streamChat(
     }
     if (done) break
   }
+}
+
+export function resumeChat(
+  threadId: string,
+  payload: Record<string, unknown>,
+): Promise<ChatResult> {
+  return api<ChatResult>(`/chat/${threadId}/resume`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }
 
 export function stableIdempotencyKey(summary: string): string {

@@ -2,13 +2,20 @@ services:
   postgres:
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BIZ_DB_PASSWORD: ${BIZ_DB_PASSWORD:?BIZ_DB_PASSWORD is required}
+      AI_DB_PASSWORD: ${AI_DB_PASSWORD:?AI_DB_PASSWORD is required}
+
+  business:
+    environment:
+      BIZ_DATABASE_PASSWORD: ${BIZ_DB_PASSWORD:?BIZ_DB_PASSWORD is required}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
 
   api:
     environment:
       ENVIRONMENT: production
       SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
       DEMO_MODE: "false"
-      DATABASE_URL: postgresql+psycopg://aftersales:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/aftersales
+      DATABASE_URL: postgresql+psycopg://aftersales_ai:${AI_DB_PASSWORD:?AI_DB_PASSWORD is required}@postgres:5432/aftersales?options=-csearch_path%3Dai%2Cpublic
       CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS is required}
       BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
       BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}

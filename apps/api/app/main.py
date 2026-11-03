@@ -38,6 +38,8 @@ app.add_middleware(
 )
 app.add_middleware(RateLimitMiddleware)
 app.include_router(api_router, prefix=settings.api_prefix)
+if settings.enable_legacy_api and settings.legacy_api_prefix != settings.api_prefix:
+    app.include_router(api_router, prefix=settings.legacy_api_prefix, include_in_schema=False)
 
 
 @app.middleware("http")

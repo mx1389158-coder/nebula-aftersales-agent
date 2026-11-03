@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from apps.api.app.api.routes import (
     auth,
     chat,
+    conversations,
     documents,
     evals,
     governance,
@@ -12,11 +13,14 @@ from apps.api.app.api.routes import (
     skills,
     tickets,
 )
+from apps.api.app.core.config import settings
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
-api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+if not settings.business_service_enabled:
+    api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(chat.router, prefix="/chat", tags=["chat"])
+api_router.include_router(conversations.router, prefix="/conversations", tags=["conversations"])
 api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
 api_router.include_router(memories.router, prefix="/memories", tags=["memories"])
 api_router.include_router(tickets.router, prefix="/tickets", tags=["tickets"])

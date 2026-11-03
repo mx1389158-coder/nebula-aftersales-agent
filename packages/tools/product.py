@@ -3,16 +3,38 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from apps.api.app.core.config import settings
 from apps.api.app.models import Device
 from packages.context.retrieval import HybridRetriever
 from packages.tools.contracts import ToolEvidence, ToolResult
+from packages.tools.java_business import JavaBusinessClient
 
 
 class ProductTools:
     def __init__(self, session: Session) -> None:
         self.session = session
 
-    def get_product_profile(self, *, tenant_id: str, user_id: str, device_id: str) -> ToolResult:
+    def get_product_profile(
+        self,
+        *,
+        tenant_id: str,
+        user_id: str,
+        device_id: str,
+        access_token: str | None = None,
+        request_id: str | None = None,
+    ) -> ToolResult:
+        if settings.business_service_enabled:
+            if not access_token:
+                return ToolResult(
+                    status="failed",
+                    error_code="MISSING_USER_TOKEN",
+                    message_for_model="缺少查询业务设备所需的用户授权上下文。",
+                )
+            return JavaBusinessClient().get_device_profile(
+                access_token=access_token,
+                device_id=device_id,
+                request_id=request_id,
+            )
         device = self.session.scalar(
             select(Device).where(
                 Device.id == device_id,

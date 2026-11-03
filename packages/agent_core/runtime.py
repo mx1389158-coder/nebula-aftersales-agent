@@ -55,6 +55,7 @@ class AgentState(TypedDict, total=False):
     request_id: str
     tenant_id: str
     user_id: str
+    access_token: str | None
     thread_id: str
     message: str
     device_id: str | None
@@ -150,11 +151,13 @@ class AgentRuntime:
                 tenant_id=state["tenant_id"],
                 user_id=state["user_id"],
                 device_id=str(state["device_id"]),
+                access_token=state.get("access_token"),
+                request_id=state["request_id"],
             )
             if profile.status == "success":
-                product_id = str(profile.data["product_id"])
-                model = str(profile.data["model"])
-                firmware = str(profile.data["firmware_version"])
+                product_id = str(profile.data.get("product_id") or product_id or "")
+                model = str(profile.data.get("model") or profile.data.get("model_code") or "")
+                firmware = str(profile.data.get("firmware_version") or "")
         if not model:
             match = re.search(r"\b([A-Z][A-Z0-9-]{1,12}\d)\b", message, re.IGNORECASE)
             model = match.group(1).upper() if match else None
@@ -378,6 +381,8 @@ class AgentRuntime:
             idempotency_key=str(key),
             confirmed=bool(state.get("confirmed")),
             device_id=state.get("device_id"),
+            access_token=state.get("access_token"),
+            request_id=state["request_id"],
         )
         if result.status == "need_confirm":
             action = {
@@ -417,7 +422,11 @@ class AgentRuntime:
         if not match:
             return {"decision": "ASK", "answer": "请提供要查询的工单编号。"}
         result = self.ticket_tools.get_ticket_status(
-            tenant_id=state["tenant_id"], user_id=state["user_id"], ticket_id=match.group(0)
+            tenant_id=state["tenant_id"],
+            user_id=state["user_id"],
+            ticket_id=match.group(0),
+            access_token=state.get("access_token"),
+            request_id=state["request_id"],
         )
         return {
             "decision": "TOOL",
@@ -546,6 +555,7 @@ class AgentRuntime:
             "thread_id": payload.get("thread_id") or str(uuid.uuid4()),
             "tenant_id": payload["tenant_id"],
             "user_id": payload["user_id"],
+            "access_token": payload.get("access_token"),
             "message": payload["message"],
             "device_id": payload.get("device_id"),
             "product_id": payload.get("product_id"),
