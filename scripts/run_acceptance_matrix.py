@@ -75,6 +75,11 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--timeout", type=int, default=1800)
     parser.add_argument("--include-external", action="store_true")
+    parser.add_argument(
+        "--production-only",
+        action="store_true",
+        help="run only the default hybrid/M3/reviewed production configuration",
+    )
     args = parser.parse_args()
 
     core = [
@@ -86,6 +91,8 @@ def main() -> None:
         ("hybrid", "M1"),
         ("hybrid", "M2"),
     ]
+    if args.production_only:
+        core = [("hybrid", "M3")]
     unavailable: list[dict[str, str]] = []
     for variant, url in (
         ("lightrag", settings.lightrag_base_url),
@@ -106,15 +113,16 @@ def main() -> None:
         }
         for retrieval, memory in core
     ]
-    configs.extend(
-        {
-            "dataset_version": "aftersales-skill-v1",
-            "retrieval_variant": "hybrid",
-            "memory_variant": "M3",
-            "skill_variant": skill,
-        }
-        for skill in ("none", "manual", "extracted")
-    )
+    if not args.production_only:
+        configs.extend(
+            {
+                "dataset_version": "aftersales-skill-v1",
+                "retrieval_variant": "hybrid",
+                "memory_variant": "M3",
+                "skill_variant": skill,
+            }
+            for skill in ("none", "manual", "extracted")
+        )
     created = enqueue(configs)
     wait_for_jobs(created, args.timeout)
     report = {

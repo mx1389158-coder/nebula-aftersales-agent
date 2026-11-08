@@ -67,3 +67,66 @@ def test_get_timeout_can_be_retried(monkeypatch: pytest.MonkeyPatch) -> None:
 
     assert result.error_code == "BUSINESS_TIMEOUT"
     assert result.retryable is True
+
+
+def test_write_timeout_reconciles_by_idempotency_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[str] = []
+
+    def fake_request(method: str, url: str, **kwargs: object) -> httpx.Response:
+        del kwargs
+        calls.append(f"{method} {url}")
+        if method == "POST":
+            raise httpx.ReadTimeout("timeout")
+        return httpx.Response(200, json={"id": "ticket-2", "status": "CREATED"})
+
+    monkeypatch.setattr(httpx, "request", fake_request)
+    result = JavaBusinessClient("http://business:8080").create_ticket(
+        access_token="token",
+        summary="X2 无法联网",
+        contact="13800000000",
+        idempotency_key="stable-request-key",
+        agent_context={"thread_id": "thread-1", "request_id": "request-1"},
+    )
+
+    assert result.status == "success"
+    assert result.data["ticket_id"] == "ticket-2"
+    assert result.data["reconciled"] is True
+    assert calls == [
+        "POST http://business:8080/api/business/v1/tickets",
+        "GET http://business:8080/api/business/v1/tickets/idempotency/stable-request-key",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("status_code", "expected_status", "error_code"),
+    [
+        (404, "not_found", "DEVICE_NOT_OWNED"),
+        (500, "failed", "BUSINESS_HTTP_500"),
+    ],
+)
+def test_create_ticket_preserves_java_failure_status(
+    monkeypatch: pytest.MonkeyPatch,
+    status_code: int,
+    expected_status: str,
+    error_code: str,
+) -> None:
+    def fake_request(*args: object, **kwargs: object) -> httpx.Response:
+        del args, kwargs
+        body = (
+            {"error_code": "DEVICE_NOT_OWNED", "message": "设备不存在"}
+            if status_code == 404
+            else {"message": "内部错误"}
+        )
+        return httpx.Response(status_code, json=body)
+
+    monkeypatch.setattr(httpx, "request", fake_request)
+    result = JavaBusinessClient("http://business:8080").create_ticket(
+        access_token="token",
+        summary="X2 无法联网",
+        contact="13800000000",
+        idempotency_key="stable-request-key",
+    )
+
+    assert result.status == expected_status
+    assert result.error_code == error_code
+    assert "ticket_id" not in result.data

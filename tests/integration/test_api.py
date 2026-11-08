@@ -34,6 +34,19 @@ def test_demo_api_flow() -> None:
         assert chat.status_code == 200
         assert chat.json()["decision"] == "ANSWER"
         assert chat.json()["citations"]
+        thread_id = chat.json()["thread_id"]
+        conversation = client.get(f"/api/v1/conversations/{thread_id}", headers=headers)
+        assert conversation.status_code == 200
+        assert [item["role"] for item in conversation.json()["messages"]] == [
+            "user",
+            "assistant",
+        ]
+        status_response = client.get(f"/api/v1/chat/{thread_id}/status", headers=headers)
+        assert status_response.status_code == 200
+        assert status_response.json()["status"] == "active"
+        cancelled = client.post(f"/api/v1/chat/{thread_id}/cancel", headers=headers)
+        assert cancelled.status_code == 200
+        assert cancelled.json()["status"] == "cancelled"
 
         memory = client.post(
             "/api/v1/memories",

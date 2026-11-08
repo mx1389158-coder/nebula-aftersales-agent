@@ -80,6 +80,7 @@ class AgentState(TypedDict, total=False):
     memory_variant: str
     skill_variant: str
     evaluation_mode: bool
+    conversation_context: list[str]
 
 
 class AgentRuntime:
@@ -111,6 +112,7 @@ class AgentRuntime:
             )
             self.session.add(checkpoint)
             self.session.flush()
+        checkpoint.status = "active"
         return checkpoint
 
     def _active_skills(self, state: AgentState) -> list[dict[str, Any]]:
@@ -328,7 +330,11 @@ class AgentRuntime:
         skill_steps = [
             str(step) for skill in state.get("skills", []) for step in skill.get("steps", [])
         ]
-        context = [*state.get("memories", []), *skill_steps[:3]]
+        context = [
+            *state.get("conversation_context", []),
+            *state.get("memories", []),
+            *skill_steps[:3],
+        ]
         with telemetry.observe(
             "llm.answer",
             as_type="generation",
@@ -369,10 +375,21 @@ class AgentRuntime:
                 "answer": "创建工单前，请提供可联系的手机号或邮箱。",
                 "trace": self._record(state, "ticket", {"reason": "missing_contact"}),
             }
-        key = state.get("idempotency_key") or pending.get("idempotency_key")
+        # The key identifies one logical create operation, not the ticket text.
+        # A persisted pending action keeps it stable across confirmation and
+        # retries; after success the action is cleared and the next operation
+        # receives a fresh key even when its summary is identical.
+        key = pending.get("idempotency_key") or state.get("idempotency_key")
         if not key:
-            raw = f"{state['tenant_id']}:{state['user_id']}:{state['thread_id']}:{summary}"
-            key = hashlib.sha256(raw.encode()).hexdigest()[:32]
+            key = f"ticket-{uuid.uuid4()}"
+        device_id = state.get("device_id") or pending.get("device_id")
+        action = {
+            "type": "create_ticket",
+            "summary": summary,
+            "contact": contact,
+            "idempotency_key": key,
+            "device_id": device_id,
+        }
         result = self.ticket_tools.create_ticket(
             tenant_id=state["tenant_id"],
             user_id=state["user_id"],
@@ -380,18 +397,13 @@ class AgentRuntime:
             contact=str(contact),
             idempotency_key=str(key),
             confirmed=bool(state.get("confirmed")),
-            device_id=state.get("device_id"),
+            device_id=device_id,
             access_token=state.get("access_token"),
             request_id=state["request_id"],
+            thread_id=state["thread_id"],
+            trace_id=state["request_id"],
         )
         if result.status == "need_confirm":
-            action = {
-                "type": "create_ticket",
-                "summary": summary,
-                "contact": contact,
-                "idempotency_key": key,
-                "device_id": state.get("device_id"),
-            }
             checkpoint.pending_action = action
             checkpoint.state = {"last_request_id": state["request_id"]}
             self.session.commit()
@@ -402,15 +414,51 @@ class AgentRuntime:
                 "tool_result": result.model_dump(),
                 "trace": self._record(state, "ticket_interrupt", {"confirmation": "required"}),
             }
-        checkpoint.pending_action = {}
+        ticket_id = result.data.get("ticket_id")
+        if result.status == "success" and ticket_id:
+            checkpoint.pending_action = {}
+            checkpoint.state = {"last_request_id": state["request_id"]}
+            self.session.commit()
+            return {
+                "decision": "TOOL",
+                "answer": f"工单已创建，编号：{ticket_id}。",
+                "pending_action": {},
+                "tool_result": result.model_dump(),
+                "trace": self._record(state, "ticket_created", result.data),
+            }
+
+        # A write is complete only when the tool explicitly reports success and
+        # supplies the created resource id. Keep the exact action/idempotency key
+        # for not-found, timeout, 5xx and malformed-success responses so the user
+        # can retry safely without creating a second ticket.
+        checkpoint.pending_action = action
         checkpoint.state = {"last_request_id": state["request_id"]}
         self.session.commit()
+        tool_result = result.model_dump()
+        effective_status = result.status
+        if result.status == "success":
+            effective_status = "failed"
+            tool_result.update(
+                status="failed",
+                error_code="MISSING_TICKET_ID",
+                message_for_model="业务服务返回成功，但缺少工单编号，结果不能视为创建成功。",
+                retryable=True,
+            )
+        if effective_status == "not_found":
+            answer = f"未能创建工单：{result.message_for_model} 请核对订单或设备后重试。"
+        else:
+            message = str(tool_result["message_for_model"])
+            answer = f"工单创建失败：{message} 本次操作已保留，你可以安全重试。"
         return {
             "decision": "TOOL",
-            "answer": f"工单已创建，编号：{result.data.get('ticket_id')}。",
-            "pending_action": {},
-            "tool_result": result.model_dump(),
-            "trace": self._record(state, "ticket_created", result.data),
+            "answer": answer,
+            "pending_action": action,
+            "tool_result": tool_result,
+            "trace": self._record(
+                state,
+                "ticket_failed",
+                {"status": effective_status, "error_code": tool_result.get("error_code")},
+            ),
         }
 
     def _ticket_status(self, state: AgentState) -> dict[str, Any]:
@@ -569,6 +617,7 @@ class AgentRuntime:
             "memory_variant": str(payload.get("memory_variant", "M3")),
             "skill_variant": str(payload.get("skill_variant", "reviewed")),
             "evaluation_mode": bool(payload.get("evaluation_mode")),
+            "conversation_context": list(payload.get("conversation_context", [])),
             "trace": [],
         }
         with telemetry.observe(
@@ -581,7 +630,9 @@ class AgentRuntime:
                 "session_id": initial["thread_id"],
             },
         ) as observation:
-            result = self.graph.invoke(initial)
+            result = self.graph.invoke(
+                initial, config={"recursion_limit": settings.agent_max_steps}
+            )
             if observation:
                 observation.update(
                     output=redact(

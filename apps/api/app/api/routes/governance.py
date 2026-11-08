@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from apps.api.app.core.database import get_db
-from apps.api.app.core.security import get_principal, require_admin
+from apps.api.app.core.security import get_principal, require_staff
 from apps.api.app.models import (
     Conversation,
     Feedback,
@@ -84,7 +84,7 @@ def create_feedback(
 
 @router.get("/handoffs")
 def list_handoffs(
-    principal: Principal = Depends(require_admin), session: Session = Depends(get_db)
+    principal: Principal = Depends(require_staff), session: Session = Depends(get_db)
 ) -> list[dict]:
     rows = session.scalars(
         select(HumanHandoff)
@@ -109,7 +109,7 @@ def list_handoffs(
 def update_handoff(
     handoff_id: str,
     payload: HandoffUpdate,
-    principal: Principal = Depends(require_admin),
+    principal: Principal = Depends(require_staff),
     session: Session = Depends(get_db),
 ) -> dict:
     handoff = session.scalar(

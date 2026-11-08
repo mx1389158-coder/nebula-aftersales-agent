@@ -11,13 +11,29 @@ import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface TicketMapper {
-    @Select("SELECT * FROM biz.tickets WHERE id = #{id} AND tenant_id = #{tenantId}")
+    @Select("""
+            SELECT id, ticket_no, tenant_id, user_id, device_id, summary, contact,
+                   agent_context::text AS agent_context, status, assignee_id, version,
+                   created_at, updated_at
+            FROM biz.tickets WHERE id = #{id} AND tenant_id = #{tenantId}
+            """)
     TicketRow findById(@Param("tenantId") String tenantId, @Param("id") UUID id);
 
-    @Select("SELECT * FROM biz.tickets WHERE tenant_id = #{tenantId} AND user_id = #{userId} ORDER BY updated_at DESC")
+    @Select("""
+            SELECT id, ticket_no, tenant_id, user_id, device_id, summary, contact,
+                   agent_context::text AS agent_context, status, assignee_id, version,
+                   created_at, updated_at
+            FROM biz.tickets WHERE tenant_id = #{tenantId} AND user_id = #{userId}
+            ORDER BY updated_at DESC
+            """)
     List<TicketRow> listForUser(@Param("tenantId") String tenantId, @Param("userId") UUID userId);
 
-    @Select("SELECT * FROM biz.tickets WHERE tenant_id = #{tenantId} ORDER BY updated_at DESC LIMIT 200")
+    @Select("""
+            SELECT id, ticket_no, tenant_id, user_id, device_id, summary, contact,
+                   agent_context::text AS agent_context, status, assignee_id, version,
+                   created_at, updated_at
+            FROM biz.tickets WHERE tenant_id = #{tenantId} ORDER BY updated_at DESC LIMIT 200
+            """)
     List<TicketRow> listForStaff(String tenantId);
 
     @Select("""
@@ -27,13 +43,15 @@ public interface TicketMapper {
     List<Map<String, Object>> events(UUID ticketId);
 
     @Insert("""
-            INSERT INTO biz.tickets(id, ticket_no, tenant_id, user_id, device_id, summary, contact)
-            VALUES(#{id}, #{ticketNo}, #{tenantId}, #{userId}, #{deviceId}, #{summary}, #{contact})
+            INSERT INTO biz.tickets(id, ticket_no, tenant_id, user_id, device_id, summary, contact,
+              agent_context)
+            VALUES(#{id}, #{ticketNo}, #{tenantId}, #{userId}, #{deviceId}, #{summary}, #{contact},
+              CAST(#{agentContext} AS jsonb))
             """)
     int insert(@Param("id") UUID id, @Param("ticketNo") String ticketNo,
                @Param("tenantId") String tenantId, @Param("userId") UUID userId,
                @Param("deviceId") UUID deviceId, @Param("summary") String summary,
-               @Param("contact") String contact);
+               @Param("contact") String contact, @Param("agentContext") String agentContext);
 
     @Update("""
             UPDATE biz.tickets SET status = #{target}::varchar, assignee_id = #{assigneeId},

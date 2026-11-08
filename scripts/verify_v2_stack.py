@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -81,16 +82,11 @@ def main() -> None:
     assert any(str(ticket["id"]) == ticket_id for ticket in tickets)
 
     pending = first["pending_action"]
+    encoded_key = urllib.parse.quote(pending["idempotency_key"], safe="")
     duplicate = request(
-        "POST",
-        f"{BUSINESS_URL}/api/business/v1/tickets",
+        "GET",
+        f"{BUSINESS_URL}/api/business/v1/tickets/idempotency/{encoded_key}",
         token=token,
-        headers={"Idempotency-Key": pending["idempotency_key"]},
-        body={
-            "device_id": device_id,
-            "summary": pending["summary"],
-            "contact": pending["contact"],
-        },
     )
     assert str(duplicate["id"]) == ticket_id
     assert duplicate["deduplicated"] is True

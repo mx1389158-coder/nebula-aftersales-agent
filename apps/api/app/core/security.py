@@ -9,6 +9,7 @@ import jwt
 from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from apps.api.app.core.config import settings
@@ -111,7 +112,20 @@ def get_principal(
             is_active=True,
         )
         session.add(user)
-        session.commit()
+        try:
+            session.commit()
+        except IntegrityError:
+            # Multiple first requests for the same Java identity can arrive in
+            # parallel during UI bootstrap. The winning transaction owns the
+            # projection; losing requests roll back and reuse that committed row.
+            session.rollback()
+            user = session.scalar(
+                select(User).where(
+                    User.id == principal.user_id,
+                    User.tenant_id == principal.tenant_id,
+                    User.is_active.is_(True),
+                )
+            )
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户不存在或已停用")
     return Principal(
@@ -123,6 +137,12 @@ def get_principal(
 
 
 def require_admin(principal: Principal = Depends(get_principal)) -> Principal:
+    if principal.role != "admin":
+        raise HTTPException(status_code=403, detail="需要管理员权限")
+    return principal
+
+
+def require_staff(principal: Principal = Depends(get_principal)) -> Principal:
     if principal.role not in {"admin", "support"}:
         raise HTTPException(status_code=403, detail="需要管理员或售后权限")
     return principal

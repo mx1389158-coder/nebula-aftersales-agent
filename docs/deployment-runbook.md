@@ -16,7 +16,7 @@ docker compose logs --tail 100 api worker
 
 ## 生产部署
 
-生产变量至少包括：随机 `SECRET_KEY`、强 `POSTGRES_PASSWORD`、明确的 `CORS_ORIGINS`。首次空库可临时配置 `BOOTSTRAP_ADMIN_EMAIL` 和不少于 12 位的 `BOOTSTRAP_ADMIN_PASSWORD`，登录后应移除这两个变量并轮换密码。
+生产变量至少包括：随机 `SECRET_KEY`、强 `POSTGRES_PASSWORD` / `BIZ_DB_PASSWORD` / `AI_DB_PASSWORD`、明确的 `CORS_ORIGINS`，以及随机且不入库的 `BUSINESS_SERVICE_CREDENTIAL`。后者只用于 `/auth/service-token` 换取短期服务 JWT；本地为空时该接口拒绝所有签发请求，生产 Compose 则在缺失或空值时直接拒绝启动。首次空库可临时配置 `BOOTSTRAP_ADMIN_EMAIL` 和不少于 12 位的 `BOOTSTRAP_ADMIN_PASSWORD`，登录后应移除这两个变量并轮换密码。
 
 ```powershell
 docker compose -f docker-compose.yml -f docker-compose.prod.yml config

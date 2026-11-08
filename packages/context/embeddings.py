@@ -56,7 +56,10 @@ class SentenceTransformerEmbedder:
                 "请安装 local-embedding 可选依赖后再启用 EMBEDDING_PROVIDER=bge"
             ) from exc
         self.model = sentence_transformers.SentenceTransformer(
-            model_name, cache_folder=settings.model_cache_dir
+            model_name,
+            cache_folder=settings.model_cache_dir,
+            device=settings.embedding_device,
+            local_files_only=settings.model_offline,
         )
         self.dimensions = dimensions
 

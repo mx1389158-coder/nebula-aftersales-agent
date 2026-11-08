@@ -4,6 +4,7 @@ import com.nebula.common.BusinessException;
 import com.nebula.security.BusinessPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -33,6 +34,19 @@ public class AuthController {
         return auth.login(tenantId, request.username(), request.password());
     }
 
+    @PostMapping("/auth/register")
+    Map<String, Object> register(@Valid @RequestBody RegisterRequest request,
+            @RequestHeader(value = "X-Tenant-ID", defaultValue = "demo") String tenantId) {
+        return auth.register(tenantId, request.email(), request.displayName(), request.password());
+    }
+
+    @PostMapping("/auth/service-token")
+    Map<String, Object> serviceToken(
+            @RequestHeader("X-Service-Credential") String credential,
+            @RequestHeader(value = "X-Tenant-ID", defaultValue = "demo") String tenantId) {
+        return auth.serviceToken(tenantId, credential);
+    }
+
     @GetMapping("/users/me")
     Map<String, Object> me(@AuthenticationPrincipal Jwt jwt) {
         BusinessPrincipal principal = BusinessPrincipal.from(jwt);
@@ -44,5 +58,11 @@ public class AuthController {
     public record LoginRequest(
             @NotBlank @Size(max = 255) String username,
             @NotBlank @Size(min = 8, max = 256) String password
+    ) {}
+
+    public record RegisterRequest(
+            @NotBlank @Email @Size(max = 255) String email,
+            @NotBlank @Size(max = 120) String displayName,
+            @NotBlank @Size(min = 8, max = 72) String password
     ) {}
 }

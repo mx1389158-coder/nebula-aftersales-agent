@@ -48,11 +48,14 @@ async def request_context(
     call_next: Callable[[Request], Awaitable[Response]],
 ) -> Response:
     request_id = request.headers.get("x-request-id") or __import__("uuid").uuid4().hex
+    trace_id = request.headers.get("x-trace-id") or request_id
     response = await call_next(request)
     response.headers["x-request-id"] = request_id
+    response.headers["x-trace-id"] = trace_id
     logger.info(
         "request.completed",
         request_id=request_id,
+        trace_id=trace_id,
         method=request.method,
         path=request.url.path,
         status=response.status_code,

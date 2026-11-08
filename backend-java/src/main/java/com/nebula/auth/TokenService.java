@@ -22,20 +22,31 @@ public class TokenService {
     public TokenService(SecurityProperties properties) { this.properties = properties; }
 
     public IssuedToken issue(UserAccount user) {
+        return issue(user.id().toString(), user.tenantId(), user.username(), List.of(user.role()));
+    }
+
+    public IssuedToken issueService(String tenantId) {
+        return issue("00000000-0000-0000-0000-000000000200", tenantId,
+                "ai-service", List.of("SERVICE"));
+    }
+
+    public String serviceCredential() { return properties.serviceCredential(); }
+
+    private IssuedToken issue(String subject, String tenantId, String username, List<String> roles) {
         Instant now = Instant.now();
         Instant expiresAt = now.plus(properties.accessTokenMinutes(), ChronoUnit.MINUTES);
         JWTClaimsSet claims = new JWTClaimsSet.Builder()
-                .subject(user.id().toString())
+                .subject(subject)
                 .issuer(properties.issuer())
                 .audience(properties.audience())
                 .issueTime(Date.from(now))
                 .notBeforeTime(Date.from(now.minusSeconds(5)))
                 .expirationTime(Date.from(expiresAt))
                 .jwtID(UUID.randomUUID().toString())
-                .claim("tenant_id", user.tenantId())
-                .claim("role", user.role())
-                .claim("roles", List.of(user.role()))
-                .claim("username", user.username())
+                .claim("tenant_id", tenantId)
+                .claim("role", roles.getFirst())
+                .claim("roles", roles)
+                .claim("username", username)
                 .build();
         SignedJWT jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
         try {

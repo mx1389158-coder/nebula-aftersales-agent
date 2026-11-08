@@ -17,3 +17,4 @@ class ToolResult(BaseModel):
     message_for_model: str
     evidence: list[ToolEvidence] = Field(default_factory=list)
     retryable: bool = False
+    latency_ms: float | None = None

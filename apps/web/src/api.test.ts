@@ -1,13 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { stableIdempotencyKey } from './api'
+import { IdempotencyAttempt } from './api'
 
-describe('stableIdempotencyKey', () => {
-  it('is stable for the same Chinese summary', () => {
-    const summary = 'X2 无法取得 WAN 地址'
-    expect(stableIdempotencyKey(summary)).toBe(stableIdempotencyKey(` ${summary} `))
+describe('IdempotencyAttempt', () => {
+  it('reuses a key while retrying the same logical operation', () => {
+    const attempt = new IdempotencyAttempt('web-ticket')
+    const payload = { summary: 'X2 无法取得 WAN 地址', contact: '13800000000' }
+    expect(attempt.keyFor(payload)).toBe(attempt.keyFor(payload))
   })
 
-  it('changes when the summary changes', () => {
-    expect(stableIdempotencyKey('故障 A')).not.toBe(stableIdempotencyKey('故障 B'))
+  it('generates a new key after success even for the same payload', () => {
+    const attempt = new IdempotencyAttempt('web-ticket')
+    const payload = { summary: 'X2 无法取得 WAN 地址', contact: '13800000000' }
+    const first = attempt.keyFor(payload)
+    attempt.complete()
+    expect(attempt.keyFor(payload)).not.toBe(first)
+  })
+
+  it('starts a new operation when the request payload changes', () => {
+    const attempt = new IdempotencyAttempt('web-ticket')
+    const first = attempt.keyFor({ summary: '故障 A', contact: '13800000000' })
+    expect(attempt.keyFor({ summary: '故障 A', contact: '13900000000' })).not.toBe(first)
   })
 })

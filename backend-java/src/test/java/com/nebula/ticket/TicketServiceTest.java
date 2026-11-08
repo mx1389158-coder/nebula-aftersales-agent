@@ -1,5 +1,6 @@
 package com.nebula.ticket;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -13,7 +14,11 @@ import com.nebula.product.CatalogMapper;
 import com.nebula.security.BusinessPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.OffsetDateTime;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,10 +86,31 @@ class TicketServiceTest {
                 .thenReturn(new IdempotencyRow("different-hash", UUID.randomUUID()));
 
         assertThatThrownBy(() -> service.create(
-                user, null, "summary", "13800000000", "same-key", request))
+                user, null, "summary", "13800000000", java.util.Map.of(), "same-key", request))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("请求内容不同");
         verify(tickets, never()).insertIdempotency(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void marksConcurrentIdempotencyWinnerAsDeduplicated() throws Exception {
+        BusinessPrincipal user = principal(UUID.randomUUID(), "USER");
+        UUID ticketId = UUID.randomUUID();
+        String canonical = "canonical-request";
+        String requestHash = HexFormat.of().formatHex(
+                MessageDigest.getInstance("SHA-256").digest(canonical.getBytes(StandardCharsets.UTF_8)));
+        when(objectMapper.writeValueAsString(any())).thenReturn(canonical);
+        when(tickets.findIdempotency(user.userId(), "CREATE_TICKET", "concurrent-key"))
+                .thenReturn(null, new IdempotencyRow(requestHash, ticketId));
+        when(tickets.insertIdempotency(any(), any(), any(), any(), any(), any())).thenReturn(0);
+        when(tickets.findById("demo", ticketId))
+                .thenReturn(row(ticketId, user.userId(), TicketStatus.CREATED));
+
+        Map<String, Object> result = service.create(
+                user, null, "summary", "13800000000", Map.of(), "concurrent-key", request);
+
+        assertThat(result).containsEntry("deduplicated", true);
+        verify(tickets, never()).insert(any(), any(), any(), any(), any(), any(), any(), any());
     }
 
     private BusinessPrincipal principal(UUID id, String role) {
@@ -94,6 +120,6 @@ class TicketServiceTest {
     private TicketRow row(UUID id, UUID owner, TicketStatus status) {
         OffsetDateTime now = OffsetDateTime.now();
         return new TicketRow(id, "T-1", "demo", owner, null, "summary", "13800000000",
-                status, null, 0, now, now);
+                "{}", status, null, 0, now, now);
     }
 }

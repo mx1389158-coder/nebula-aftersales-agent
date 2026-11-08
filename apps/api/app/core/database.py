@@ -34,6 +34,7 @@ def _apply_compatibility_columns() -> None:
     """Add columns introduced after the MVP without destroying local data volumes."""
     additions = {
         "users": [("auto_memory_enabled", "BOOLEAN NOT NULL DEFAULT FALSE")],
+        "conversations": [("summary", "TEXT NOT NULL DEFAULT ''")],
         "memories": [("supersedes_id", "VARCHAR(36)")],
         "skills": [
             ("rollout_percent", "INTEGER NOT NULL DEFAULT 100"),

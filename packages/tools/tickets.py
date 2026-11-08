@@ -26,6 +26,8 @@ class TicketTools:
         device_id: str | None = None,
         access_token: str | None = None,
         request_id: str | None = None,
+        thread_id: str | None = None,
+        trace_id: str | None = None,
     ) -> ToolResult:
         if settings.business_service_enabled:
             if not confirmed:
@@ -48,6 +50,10 @@ class TicketTools:
                 idempotency_key=idempotency_key,
                 device_id=device_id,
                 request_id=request_id,
+                trace_id=trace_id,
+                agent_context={"thread_id": thread_id, "request_id": request_id}
+                if thread_id or request_id
+                else None,
             )
         existing = self.session.scalar(
             select(Ticket).where(
@@ -92,6 +98,7 @@ class TicketTools:
         )
         ticket.events.append(TicketEvent(event_type="created", detail={"source": "assistant"}))
         self.session.add(ticket)
+        deduplicated = False
         try:
             self.session.commit()
         except IntegrityError:
@@ -104,11 +111,18 @@ class TicketTools:
             if not existing:
                 raise
             ticket = existing
+            deduplicated = True
         self.session.refresh(ticket)
         return ToolResult(
             status="success",
-            data={"ticket_id": ticket.id, "status": ticket.status, "deduplicated": False},
-            message_for_model="工单创建成功。",
+            data={
+                "ticket_id": ticket.id,
+                "status": ticket.status,
+                "deduplicated": deduplicated,
+            },
+            message_for_model=(
+                "已返回并发幂等请求创建的工单。" if deduplicated else "工单创建成功。"
+            ),
             evidence=[ToolEvidence(type="db_record", id=ticket.id)],
         )
 

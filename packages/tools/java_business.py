@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import uuid
+from time import perf_counter
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
@@ -30,10 +32,13 @@ class JavaBusinessClient:
         device_id: str | None = None,
         request_id: str | None = None,
         trace_id: str | None = None,
+        agent_context: dict[str, Any] | None = None,
     ) -> ToolResult:
         payload: dict[str, Any] = {"summary": summary, "contact": contact}
         if device_id:
             payload["device_id"] = device_id
+        if agent_context:
+            payload["agent_context"] = agent_context
         result = self._request(
             "POST",
             "/api/business/v1/tickets",
@@ -43,6 +48,22 @@ class JavaBusinessClient:
             request_id=request_id,
             trace_id=trace_id,
         )
+        if result.error_code == "BUSINESS_TIMEOUT":
+            reconciled = self._request(
+                "GET",
+                f"/api/business/v1/tickets/idempotency/{quote(idempotency_key, safe='')}",
+                access_token=access_token,
+                request_id=request_id,
+                trace_id=trace_id,
+            )
+            if reconciled.status == "success":
+                reconciled.data["reconciled"] = True
+                reconciled.message_for_model = "写请求超时，但已通过幂等键确认工单创建成功。"
+                result = reconciled
+            elif reconciled.status == "not_found":
+                result.message_for_model = (
+                    "写请求超时且暂未查到幂等结果；请稍后用同一幂等键安全重试。"
+                )
         if result.status == "success" and result.data.get("id"):
             result.data.setdefault("ticket_id", str(result.data["id"]))
         return result
@@ -110,6 +131,7 @@ class JavaBusinessClient:
         }
         if idempotency_key:
             headers["Idempotency-Key"] = idempotency_key
+        started = perf_counter()
         try:
             response = httpx.request(
                 method,
@@ -124,6 +146,7 @@ class JavaBusinessClient:
                 error_code="BUSINESS_TIMEOUT",
                 message_for_model="业务服务响应超时；写操作结果未知，请按幂等键核对后再重试。",
                 retryable=method == "GET",
+                latency_ms=round((perf_counter() - started) * 1000, 2),
             )
         except httpx.HTTPError:
             return ToolResult(
@@ -131,6 +154,7 @@ class JavaBusinessClient:
                 error_code="BUSINESS_UNAVAILABLE",
                 message_for_model="业务服务暂时不可用。",
                 retryable=method == "GET",
+                latency_ms=round((perf_counter() - started) * 1000, 2),
             )
 
         body = self._json(response)
@@ -141,6 +165,7 @@ class JavaBusinessClient:
                 data=body,
                 message_for_model="Java 业务服务操作成功。",
                 evidence=[ToolEvidence(type="business_api", id=resource_id)],
+                latency_ms=round((perf_counter() - started) * 1000, 2),
             )
         error_code = str(body.get("error_code") or f"BUSINESS_HTTP_{response.status_code}")
         message = str(body.get("message") or body.get("detail") or "业务服务拒绝了请求。")
@@ -151,6 +176,7 @@ class JavaBusinessClient:
             error_code=error_code,
             message_for_model=message,
             retryable=response.status_code >= 500 and method == "GET",
+            latency_ms=round((perf_counter() - started) * 1000, 2),
         )
 
     @staticmethod

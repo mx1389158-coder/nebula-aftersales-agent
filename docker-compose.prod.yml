@@ -9,6 +9,7 @@ services:
     environment:
       BIZ_DATABASE_PASSWORD: ${BIZ_DB_PASSWORD:?BIZ_DB_PASSWORD is required}
       SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      BUSINESS_SERVICE_CREDENTIAL: ${BUSINESS_SERVICE_CREDENTIAL:?BUSINESS_SERVICE_CREDENTIAL is required}
 
   api:
     environment:

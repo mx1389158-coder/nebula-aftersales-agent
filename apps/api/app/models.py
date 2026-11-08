@@ -70,6 +70,7 @@ class Conversation(Base, TimestampMixin):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     title: Mapped[str] = mapped_column(String(200), default="新会话")
     status: Mapped[str] = mapped_column(String(20), default="active")
+    summary: Mapped[str] = mapped_column(Text, default="")
     messages: Mapped[list[Message]] = relationship(back_populates="conversation")
 
 

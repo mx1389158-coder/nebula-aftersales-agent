@@ -37,12 +37,18 @@ public class TicketController {
         return tickets.get(BusinessPrincipal.from(jwt), id);
     }
 
+    @GetMapping("/idempotency/{key}")
+    Map<String, Object> byIdempotencyKey(@PathVariable String key,
+            @AuthenticationPrincipal Jwt jwt) {
+        return tickets.findByIdempotency(BusinessPrincipal.from(jwt), key);
+    }
+
     @PostMapping
     Map<String, Object> create(@Valid @RequestBody CreateRequest body,
             @RequestHeader("Idempotency-Key") String idempotencyKey,
             @AuthenticationPrincipal Jwt jwt, HttpServletRequest request) {
         return tickets.create(BusinessPrincipal.from(jwt), body.deviceId(), body.summary(),
-                body.contact(), idempotencyKey, request);
+                body.contact(), body.agentContext(), idempotencyKey, request);
     }
 
     @PatchMapping("/{id}/status")
@@ -54,7 +60,8 @@ public class TicketController {
 
     public record CreateRequest(UUID deviceId,
             @NotBlank @Size(max = 4000) String summary,
-            @NotBlank @Size(max = 120) String contact) {}
+            @NotBlank @Size(max = 120) String contact,
+            Map<String, Object> agentContext) {}
     public record StatusRequest(@NotNull TicketStatus status, long version,
                                 @Size(max = 1000) String note) {}
 }

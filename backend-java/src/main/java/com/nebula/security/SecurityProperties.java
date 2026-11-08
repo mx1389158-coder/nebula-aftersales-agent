@@ -7,5 +7,6 @@ public record SecurityProperties(
         String jwtSecret,
         String issuer,
         String audience,
-        long accessTokenMinutes
+        long accessTokenMinutes,
+        String serviceCredential
 ) {}

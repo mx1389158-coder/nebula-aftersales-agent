@@ -5,16 +5,13 @@ ENV PIP_DEFAULT_TIMEOUT=300 \
 
 WORKDIR /app
 COPY pyproject.toml ./
-COPY apps ./apps
-COPY packages ./packages
-COPY data ./data
-COPY evals ./evals
 RUN --mount=type=cache,id=aftersales-pip,target=/root/.cache/pip,sharing=locked \
     for attempt in 1 2 3; do \
         pip install --no-deps --index-url https://download.pytorch.org/whl/cpu "torch>=2,<3" && exit 0; \
     done; exit 1
 ARG PIP_INDEX_URL=https://pypi.org/simple
 RUN --mount=type=cache,id=aftersales-pip,target=/root/.cache/pip,sharing=locked \
+    mkdir -p apps packages && touch apps/__init__.py packages/__init__.py && \
     for attempt in 1 2 3; do \
         pip install --index-url "$PIP_INDEX_URL" \
             "filelock>=3.10" "typing-extensions>=4.10" "sympy>=1.13.3" \
@@ -23,5 +20,9 @@ RUN --mount=type=cache,id=aftersales-pip,target=/root/.cache/pip,sharing=locked 
             && pip check \
             && exit 0; \
     done; exit 1
+COPY apps ./apps
+COPY packages ./packages
+COPY data ./data
+COPY evals ./evals
 CMD ["python", "-m", "apps.worker.app.main"]
 

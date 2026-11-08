@@ -11,6 +11,7 @@ public record TicketRow(
         UUID deviceId,
         String summary,
         String contact,
+        String agentContext,
         TicketStatus status,
         UUID assigneeId,
         long version,

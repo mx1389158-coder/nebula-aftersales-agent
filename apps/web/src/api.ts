@@ -15,8 +15,23 @@ export async function login(username: string, password: string): Promise<void> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   })
-  if (!response.ok) throw new Error('邮箱或密码错误')
+  if (!response.ok) throw new Error(await authError(response, '邮箱或密码错误'))
   saveToken((await response.json()).access_token)
+}
+
+export async function registerAccount(displayName: string, email: string, password: string): Promise<void> {
+  const response = await fetch(`${BUSINESS_API_ROOT}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ display_name: displayName, email, password }),
+  })
+  if (!response.ok) throw new Error(await authError(response, '注册失败，请稍后重试'))
+  saveToken((await response.json()).access_token)
+}
+
+async function authError(response: Response, fallback: string): Promise<string> {
+  const body = await response.json().catch(() => undefined) as { message?: string; detail?: string } | undefined
+  return body?.message || body?.detail || fallback
 }
 
 export function logout() {
@@ -80,12 +95,14 @@ export type StreamEvent = { event: string; data: unknown }
 export async function streamChat(
   payload: Record<string, unknown>,
   onEvent: (item: StreamEvent) => void,
+  signal?: AbortSignal,
 ): Promise<void> {
   const accessToken = await ensureToken()
   const response = await fetch(`${AI_API_ROOT}/chat/stream`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    signal,
   })
   if (!response.ok || !response.body) throw new Error('流式会话连接失败')
   const reader = response.body.getReader()
@@ -119,12 +136,24 @@ export function resumeChat(
   })
 }
 
-export function stableIdempotencyKey(summary: string): string {
-  let hash = 0x811c9dc5
-  for (const byte of new TextEncoder().encode(summary.trim())) {
-    hash ^= byte
-    hash = Math.imul(hash, 0x01000193)
+export class IdempotencyAttempt {
+  private key?: string
+  private fingerprint?: string
+
+  constructor(private readonly prefix: string) {}
+
+  keyFor(payload: Record<string, unknown>): string {
+    const fingerprint = JSON.stringify(payload)
+    if (!this.key || this.fingerprint !== fingerprint) {
+      this.key = `${this.prefix}-${crypto.randomUUID()}`
+      this.fingerprint = fingerprint
+    }
+    return this.key
   }
-  return `web-${(hash >>> 0).toString(16).padStart(8, '0')}`
+
+  complete(): void {
+    this.key = undefined
+    this.fingerprint = undefined
+  }
 }
 

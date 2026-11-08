@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from apps.api.app.core.config import settings
 from apps.api.app.core.database import get_db
-from apps.api.app.core.security import get_principal, require_admin
+from apps.api.app.core.security import get_principal, require_staff
 from apps.api.app.models import Ticket, TicketEvent
 from apps.api.app.schemas import Principal, TicketCreate, TicketUpdate, TicketView
 from packages.tools.java_business import JavaBusinessClient
@@ -74,7 +74,7 @@ def ticket_status(
 def update_ticket(
     ticket_id: str,
     payload: TicketUpdate,
-    principal: Principal = Depends(require_admin),
+    principal: Principal = Depends(require_staff),
     session: Session = Depends(get_db),
 ) -> Ticket:
     ticket = session.scalar(

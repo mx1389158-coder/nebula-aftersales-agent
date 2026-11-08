@@ -40,7 +40,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health/**", "/api/business/v1/health").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/business/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/business/v1/openapi.json").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/business/v1/auth/login",
+                                "/api/business/v1/auth/register",
+                                "/api/business/v1/auth/service-token").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(this::convert)))
                 .addFilterBefore(rateLimitFilter, AuthorizationFilter.class);

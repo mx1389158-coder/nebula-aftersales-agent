@@ -4,6 +4,14 @@
 
 默认模式不需要云 API：系统使用确定性模板生成器和 256 维哈希向量，适合先验证业务闭环。切换 `LLM_PROVIDER=ollama` 后可接入本地 3B/4B 模型；PostgreSQL 环境会把嵌入保存为 `vector(256)` 并创建 HNSW 索引。
 
+## 核心能力
+
+- 版本感知 RAG：按产品、型号和固件版本约束证据，回答附可追溯引用。
+- LangGraph/HITL：高风险写操作先暂停确认，失败后保留动作并支持同一幂等键重试。
+- Tool Calling：Agent 调用权威业务服务创建、查询工单，明确区分成功、待确认、不存在和失败。
+- Memory 与权限：长期记忆按租户和用户隔离，业务写入沿用当前用户权限。
+- Eval：固定回归集覆盖检索、决策、引用、工具调用、安全边界和故障分支。
+
 ## 已实现范围
 
 | 方案阶段 | 当前实现 |
@@ -139,7 +147,7 @@ npm.cmd --prefix apps/web run test:e2e:windows
 
 测试重点覆盖：版本不串用、租户隔离、记忆用户隔离、敏感信息拦截、工单确认和幂等、状态图追问/回答、JWT API、Worker 评测闭环。
 
-Windows 本机的 E2E 命令使用专用启动器管理临时 API/Web 进程；Linux CI 继续执行 `npm run test:e2e`。最近一次验收视频在 `docs/demo/critical-flow-e2e.webm`，完整指标见 `docs/final-verification.md`。
+Windows 本机的 E2E 命令使用专用启动器构建并管理 PostgreSQL、Redis、Java Business、Python AI、Worker 和 Web 完整 Compose 栈；CI 使用相同的测试覆盖三种角色。最近一次验收视频在 `docs/demo/critical-flow-e2e.webm`，双后端实机结果见 `docs/v2-verification.md`，真实 Ollama/BGE 指标见 `docs/model-evaluation-v2.md`。`docs/final-verification.md` 仅保留为 V1 冻结记录。
 
 ## 关键 API
 

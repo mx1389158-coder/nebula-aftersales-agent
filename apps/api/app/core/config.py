@@ -33,13 +33,16 @@ class Settings(BaseSettings):
     business_service_url: str = ""
     business_service_enabled: bool = False
     business_service_timeout_seconds: float = 5.0
-    business_service_token: str = ""
+    agent_max_steps: int = 24
+    conversation_summary_threshold: int = 24
 
     llm_provider: str = "mock"
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:1.5b"
     embedding_provider: str = "hash"
     model_cache_dir: str = str(PROJECT_ROOT / ".model-cache")
+    model_offline: bool = False
+    embedding_device: str = "cpu"
     retrieval_top_k: int = 6
     evidence_threshold: float = 0.16
     cross_encoder_enabled: bool = False

@@ -37,6 +37,7 @@ public class ApiExceptionHandler {
         body.put("error_code", code);
         body.put("message", message);
         body.put("request_id", request.getAttribute(RequestIdFilter.ATTRIBUTE));
+        body.put("trace_id", request.getAttribute(RequestIdFilter.TRACE_ATTRIBUTE));
         body.put("timestamp", Instant.now());
         return ResponseEntity.status(status).body(body);
     }

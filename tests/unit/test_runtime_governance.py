@@ -25,6 +25,7 @@ def test_agent_persists_confirmation_and_executes_ticket(session: Session) -> No
     )
     assert first["decision"] == "TOOL"
     assert first["pending_action"]["type"] == "create_ticket"
+    first_key = first["pending_action"]["idempotency_key"]
     second = runtime.invoke(
         {
             "tenant_id": "tenant-1",
@@ -37,6 +38,31 @@ def test_agent_persists_confirmation_and_executes_ticket(session: Session) -> No
     assert second["decision"] == "TOOL"
     assert second["tool_result"]["status"] == "success"
     assert second["pending_action"] == {}
+
+    # The same issue can legitimately recur later. Once the first operation is
+    # complete, an identical summary starts a new idempotency scope.
+    third = runtime.invoke(
+        {
+            "tenant_id": "tenant-1",
+            "user_id": "user-1",
+            "thread_id": "confirm-thread",
+            "message": "请创建工单处理无法联网",
+            "contact": "user@example.invalid",
+        }
+    )
+    assert third["tool_result"]["status"] == "need_confirm"
+    assert third["pending_action"]["idempotency_key"] != first_key
+    fourth = runtime.invoke(
+        {
+            "tenant_id": "tenant-1",
+            "user_id": "user-1",
+            "thread_id": "confirm-thread",
+            "message": "确认",
+            "confirmed": True,
+        }
+    )
+    assert fourth["tool_result"]["status"] == "success"
+    assert fourth["tool_result"]["data"]["ticket_id"] != second["tool_result"]["data"]["ticket_id"]
 
 
 def test_agent_escalates_high_risk_request(session: Session) -> None:

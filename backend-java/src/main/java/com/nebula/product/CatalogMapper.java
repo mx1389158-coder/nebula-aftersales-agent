@@ -15,7 +15,7 @@ public interface CatalogMapper {
     @Select("""
             SELECT p.id, p.product_code, p.name, p.category,
                    COALESCE(jsonb_agg(jsonb_build_object('id', m.id, 'model_code', m.model_code,
-                   'name', m.name)) FILTER (WHERE m.id IS NOT NULL), '[]'::jsonb) AS models
+                   'name', m.name)) FILTER (WHERE m.id IS NOT NULL), '[]'::jsonb)::text AS models
             FROM biz.products p LEFT JOIN biz.product_models m ON m.product_id = p.id
             WHERE p.tenant_id = #{tenantId} GROUP BY p.id ORDER BY p.product_code
             """)
@@ -24,7 +24,7 @@ public interface CatalogMapper {
     @Select("""
             SELECT p.id, p.product_code, p.name, p.category,
                    COALESCE(jsonb_agg(DISTINCT jsonb_build_object('id', m.id, 'model_code', m.model_code,
-                   'name', m.name)) FILTER (WHERE m.id IS NOT NULL), '[]'::jsonb) AS models
+                   'name', m.name)) FILTER (WHERE m.id IS NOT NULL), '[]'::jsonb)::text AS models
             FROM biz.products p LEFT JOIN biz.product_models m ON m.product_id = p.id
             WHERE p.tenant_id = #{tenantId} AND p.id = #{id} GROUP BY p.id
             """)
@@ -87,4 +87,48 @@ public interface CatalogMapper {
     @Insert("INSERT INTO biz.firmwares(id, model_id, version, released_at) VALUES(#{id}, #{modelId}, #{version}, #{releasedAt})")
     int seedFirmware(@Param("id") UUID id, @Param("modelId") UUID modelId,
                      @Param("version") String version, @Param("releasedAt") LocalDate releasedAt);
+
+    @Insert("""
+            INSERT INTO biz.products(id, tenant_id, product_code, name, category)
+            VALUES(#{id}, #{tenantId}, #{code}, #{name}, #{category})
+            """)
+    int insertProduct(@Param("id") UUID id, @Param("tenantId") String tenantId,
+                      @Param("code") String code, @Param("name") String name,
+                      @Param("category") String category);
+
+    @Update("""
+            UPDATE biz.products SET name = #{name}, category = #{category}, updated_at = now()
+            WHERE id = #{id} AND tenant_id = #{tenantId}
+            """)
+    int updateProduct(@Param("tenantId") String tenantId, @Param("id") UUID id,
+                      @Param("name") String name, @Param("category") String category);
+
+    @Insert("""
+            INSERT INTO biz.product_models(id, product_id, model_code, name)
+            SELECT #{id}, id, #{code}, #{name} FROM biz.products
+            WHERE id = #{productId} AND tenant_id = #{tenantId}
+            """)
+    int insertModel(@Param("id") UUID id, @Param("tenantId") String tenantId,
+                    @Param("productId") UUID productId, @Param("code") String code,
+                    @Param("name") String name);
+
+    @Insert("""
+            INSERT INTO biz.firmwares(id, model_id, version, released_at)
+            SELECT #{id}, m.id, #{version}, #{releasedAt} FROM biz.product_models m
+            JOIN biz.products p ON p.id = m.product_id
+            WHERE m.id = #{modelId} AND p.tenant_id = #{tenantId}
+            """)
+    int insertFirmware(@Param("id") UUID id, @Param("tenantId") String tenantId,
+                       @Param("modelId") UUID modelId, @Param("version") String version,
+                       @Param("releasedAt") LocalDate releasedAt);
+
+    @Select("""
+            SELECT f.id, f.model_id, f.version, f.released_at
+            FROM biz.firmwares f JOIN biz.product_models m ON m.id = f.model_id
+            JOIN biz.products p ON p.id = m.product_id
+            WHERE p.tenant_id = #{tenantId} AND m.id = #{modelId}
+            ORDER BY f.released_at DESC, f.version DESC
+            """)
+    List<Map<String, Object>> listFirmwares(@Param("tenantId") String tenantId,
+                                            @Param("modelId") UUID modelId);
 }

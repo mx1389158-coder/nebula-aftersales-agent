@@ -14,7 +14,7 @@
 | `/api/business/v1/*` | Spring Boot :8080 | 登录、用户、产品、设备、工单 |
 | `/api/ai/v1/*` | FastAPI :8000 | 会话、RAG、知识、记忆、技能、评测 |
 
-Java 登录签发 HS256 JWT。Java 与 Python 均验证 `iss=nebula-business-service`、`aud=nebula-platform`、签名和有效期。生产环境必须替换 `SECRET_KEY`；内部批处理可通过独立 `BUSINESS_SERVICE_TOKEN` 扩展服务身份，禁止借用管理员用户令牌。
+Java 登录签发 HS256 JWT。Java 与 Python 均验证 `iss=nebula-business-service`、`aud=nebula-platform`、签名和有效期。生产环境必须替换 `SECRET_KEY`。如内部批处理需要服务身份，应设置独立的 `BUSINESS_SERVICE_CREDENTIAL` 以换取短期服务 JWT；该值为空时签发接口保持禁用，禁止借用管理员用户令牌。
 
 ## 工单一致性
 
@@ -26,7 +26,7 @@ Agent 写操作流程为：生成摘要 → 持久化 pending action → 返回�
 
 ```powershell
 # 日常开发（Mock LLM）
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+docker compose up --build
 
 # 固定 Mock 与哈希向量测试模式
 docker compose -f docker-compose.yml -f docker-compose.test.yml up --build

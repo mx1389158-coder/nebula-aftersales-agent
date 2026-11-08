@@ -51,7 +51,8 @@ public class TicketService {
 
     @Transactional
     public Map<String, Object> create(BusinessPrincipal principal, UUID deviceId, String summary,
-                                      String contact, String idempotencyKey, HttpServletRequest request) {
+                                      String contact, Map<String, Object> agentContext,
+                                      String idempotencyKey, HttpServletRequest request) {
         if (idempotencyKey == null || idempotencyKey.length() < 8 || idempotencyKey.length() > 120) {
             throw new BusinessException(HttpStatus.BAD_REQUEST, "IDEMPOTENCY_KEY_REQUIRED",
                     "创建工单必须提供 8–120 字符的 Idempotency-Key");
@@ -62,9 +63,11 @@ public class TicketService {
                 throw new BusinessException(HttpStatus.NOT_FOUND, "DEVICE_NOT_OWNED", "设备不存在或不属于当前用户");
             }
         }
+        Map<String, Object> safeContext = agentContext == null ? Map.of() : agentContext;
         String requestHash = hash(Map.of(
                 "device_id", deviceId == null ? "" : deviceId.toString(),
-                "summary", summary.trim(), "contact", contact.trim()));
+                "summary", summary.trim(), "contact", contact.trim(),
+                "agent_context", safeContext));
         IdempotencyRow existing = tickets.findIdempotency(principal.userId(), CREATE_OPERATION, idempotencyKey);
         if (existing != null) return existing(principal, existing, requestHash);
 
@@ -82,11 +85,12 @@ public class TicketService {
             return existing(principal, raced, requestHash);
         }
         tickets.insert(ticketId, ticketNo, principal.tenantId(), principal.userId(), deviceId,
-                summary.trim(), contact.trim());
+                summary.trim(), contact.trim(), json(safeContext));
         tickets.insertEvent(UUID.randomUUID(), ticketId, principal.userId(), "CREATED",
                 null, TicketStatus.CREATED.name(), json(Map.of("source", "api")));
         audit.record(principal.tenantId(), principal.userId(), "TICKET_CREATED", "ticket",
-                ticketId, requestId(request), Map.of("idempotency_key", idempotencyKey));
+                ticketId, requestId(request), traceId(request),
+                Map.of("idempotency_key", idempotencyKey));
         Map<String, Object> response = get(principal, ticketId);
         response.put("deduplicated", false);
         return response;
@@ -112,8 +116,20 @@ public class TicketService {
         tickets.insertEvent(UUID.randomUUID(), id, principal.userId(), "STATUS_CHANGED",
                 current.status().name(), target.name(), json(Map.of("note", note == null ? "" : note)));
         audit.record(principal.tenantId(), principal.userId(), "TICKET_STATUS_CHANGED", "ticket",
-                id, requestId(request), Map.of("from", current.status(), "to", target));
+                id, requestId(request), traceId(request),
+                Map.of("from", current.status(), "to", target));
         return get(principal, id);
+    }
+
+    public Map<String, Object> findByIdempotency(BusinessPrincipal principal, String key) {
+        IdempotencyRow row = tickets.findIdempotency(principal.userId(), CREATE_OPERATION, key);
+        if (row == null) {
+            throw new BusinessException(HttpStatus.NOT_FOUND, "IDEMPOTENCY_RECORD_NOT_FOUND",
+                    "未找到对应幂等请求");
+        }
+        Map<String, Object> response = get(principal, row.resourceId());
+        response.put("deduplicated", true);
+        return response;
     }
 
     private Map<String, Object> existing(BusinessPrincipal principal, IdempotencyRow row, String hash) {
@@ -140,6 +156,11 @@ public class TicketService {
         value.put("id", row.id()); value.put("ticket_no", row.ticketNo());
         value.put("user_id", row.userId()); value.put("device_id", row.deviceId());
         value.put("summary", row.summary()); value.put("contact", row.contact());
+        try {
+            value.put("agent_context", objectMapper.readValue(row.agentContext(), Map.class));
+        } catch (RuntimeException exception) {
+            value.put("agent_context", Map.of());
+        }
         value.put("status", row.status()); value.put("assignee_id", row.assigneeId());
         value.put("version", row.version()); value.put("created_at", row.createdAt());
         value.put("updated_at", row.updatedAt());
@@ -150,6 +171,11 @@ public class TicketService {
     private String requestId(HttpServletRequest request) {
         Object value = request.getAttribute(RequestIdFilter.ATTRIBUTE);
         return value == null ? null : value.toString();
+    }
+
+    private String traceId(HttpServletRequest request) {
+        Object value = request.getAttribute(RequestIdFilter.TRACE_ATTRIBUTE);
+        return value == null ? requestId(request) : value.toString();
     }
 
     private String json(Map<String, ?> value) {
